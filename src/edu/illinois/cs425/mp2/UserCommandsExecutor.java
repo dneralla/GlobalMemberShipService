@@ -11,8 +11,8 @@ public class UserCommandsExecutor {
 		DatagramSocket socket = new DatagramSocket();
 		String inputLine;
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		System.out.print("[Please Enter Command]$ ");
 		while ((inputLine = in.readLine()) != null) {
-			System.out.println("[Please Enter Command]$");
 			if (inputLine.startsWith("join")) {
 				byte[] buf = new byte[256];
 				buf = inputLine.getBytes();
@@ -24,9 +24,12 @@ public class UserCommandsExecutor {
 			} else if (inputLine.equals("help")) {
 				System.out.println("Usage: [join|leave] <hostname:hostport>");
 			} else if (inputLine.equals("exit")) {
-				return;
+				System.exit(0);
+			} else {
+				System.out.println("use help for possible options");
 			}
-
+			System.out.print("[Please Enter Command]$ ");
 		}
+
 	}
 }
