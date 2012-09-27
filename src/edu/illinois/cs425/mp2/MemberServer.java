@@ -2,10 +2,7 @@ package edu.illinois.cs425.mp2;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,17 +11,13 @@ import java.util.Timer;
 /*
  * Class for starting server. For each new request, a separate thread is spawned
  * for processing it. For sending heartbeats periodically, a separate thread is
- * created and it sends messages if flag sendHeartBeat is set. Synchronized methods
- * are being used for managing concurrent access to shared variables between threads.
+ * created and it sends messages if flag sendHeartBeat is set. All variables which
+ * are accessed by multiple threads are declared as volatile.
  */
 public class MemberServer {
 	// node information
-	private final MemberNode node;
-	private DatagramSocket socket;
-	private MulticastSocket multicastSocket;
-
+	private MemberNode node;
 	private volatile MemberNode neighborNode;
-
 	private volatile Timer lastReceivedHeartBeat;
 	private volatile boolean sendHeartBeat;
 	private volatile List<MemberServer> globalList;
@@ -37,20 +30,9 @@ public class MemberServer {
 		this.neighborNode = neighborNode;
 	}
 
-	public DatagramSocket getSocket() {
-		return socket;
-	}
-
-	public void setMemberSocket(DatagramSocket socket) {
-		this.socket = socket;
-	}
-
-	public MemberServer(String hostName, int port) throws UnknownHostException, SocketException {
+	private MemberServer() {
 		// initially doesn't have any neighbors
 		this.neighborNode = null;
-		// open datagram socket
-		setMemberSocket(new DatagramSocket(port));
-		this.node = new MemberNode(InetAddress.getByName(hostName), port);
 		this.globalList = new LinkedList<MemberServer>(Arrays.asList(this));
 		this.sendHeartBeat = false;
 	}
@@ -72,6 +54,24 @@ public class MemberServer {
 	}
 
 
+	public static MemberServer start(String hostName, int hostPort) throws SocketException {
+        MemberServer server = new MemberServer();
+        server.setNode(MemberNode.start(hostName, hostPort));
+        return server;
+	}
+
+	public void setNode(MemberNode node) {
+		// TODO Auto-generated method stub
+		this.node = node;
+	}
+
+	public MemberNode getNode() {
+		return node;
+	}
+
+	public DatagramSocket getSocket() {
+       return getNode().getSocket();
+	}
 	public static void main(String[] args) throws IOException {
 
 //		if(args.length < 2) {
@@ -81,10 +81,7 @@ public class MemberServer {
 		MemberServer server = null;
 		boolean listening = true;
 		try {
-			server = new MemberServer("localhost", 4444);
-		} catch (UnknownHostException e) {
-			System.out.println("Error: Unknown host");
-			System.exit(-1);
+			server = MemberServer.start("localhost", 4444);
 		} catch (SocketException e) {
 			System.out.println("Error: Unable to open socket");
 			System.exit(-1);
@@ -97,7 +94,7 @@ public class MemberServer {
 
 		while (listening)
 		{
-		//	new MemberServerThread(serverSocket.accept()).start();
+			new MemberServerThread(server).start();
 		}
 
 	}
