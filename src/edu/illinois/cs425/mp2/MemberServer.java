@@ -4,35 +4,53 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 
+/*
+ * Class for starting server. For each new request, a separate thread is spawned
+ * for processing it. For sending heartbeats periodically, a separate thread is
+ * created and it sends messages if flag sendHeartBeat is set. Synchronized methods
+ * are being used for managing concurrent access to shared variables between threads.
+ */
 public class MemberServer {
 	// node information
-	private final InetAddress hostAddress;
-
-	private DatagramSocket memberSocket;
+	private final MemberNode node;
+	private DatagramSocket socket;
 	private MulticastSocket multicastSocket;
 
-	private final MemberServer neighbourServer;
-	private Timer lastReceivedHeartBeat;
-	private boolean sendHeartBeat;
-	private final List<MemberServer> globalList;
+	private volatile MemberNode neighborNode;
 
-	public DatagramSocket getMemberSocket() {
-		return memberSocket;
+	private volatile Timer lastReceivedHeartBeat;
+	private volatile boolean sendHeartBeat;
+	private volatile List<MemberServer> globalList;
+
+	public MemberNode getNeighborNode() {
+		return neighborNode;
 	}
 
-	public void setMemberSocket(DatagramSocket memberSocket) {
-		this.memberSocket = memberSocket;
+	public void setNeighborNode(MemberNode neighborNode) {
+		this.neighborNode = neighborNode;
 	}
 
-	public MemberServer() throws UnknownHostException {
-		this.neighbourServer = this;
-		this.hostAddress = InetAddress.getByName("localhost");
+	public DatagramSocket getSocket() {
+		return socket;
+	}
+
+	public void setMemberSocket(DatagramSocket socket) {
+		this.socket = socket;
+	}
+
+	public MemberServer(String hostName, int port) throws UnknownHostException, SocketException {
+		// initially doesn't have any neighbors
+		this.neighborNode = null;
+		// open datagram socket
+		setMemberSocket(new DatagramSocket(port));
+		this.node = new MemberNode(InetAddress.getByName(hostName), port);
 		this.globalList = new LinkedList<MemberServer>(Arrays.asList(this));
 		this.sendHeartBeat = false;
 	}
@@ -41,11 +59,11 @@ public class MemberServer {
 		return lastReceivedHeartBeat;
 	}
 
-	public synchronized void setLastReceivedHeartBeat(Timer lastReceivedHeartBeat) {
+	public void setLastReceivedHeartBeat(Timer lastReceivedHeartBeat) {
 		this.lastReceivedHeartBeat = lastReceivedHeartBeat;
 	}
 
-	public synchronized boolean getSendHeartBeat() {
+	public boolean getSendHeartBeat() {
 		return sendHeartBeat;
 	}
 
@@ -53,20 +71,29 @@ public class MemberServer {
 		this.sendHeartBeat = sendHeartBeat;
 	}
 
+
 	public static void main(String[] args) throws IOException {
-		MemberServer member = new MemberServer();
-		if(args.length < 1) {
-			System.out.println("Usage: java <portnumber>");
-            return;
-		}
+
+//		if(args.length < 2) {
+//			System.out.println("Usage: java <portnumber>");
+//            return;
+//		}
+		MemberServer server = null;
 		boolean listening = true;
 		try {
-			member.setMemberSocket(new DatagramSocket(Integer.parseInt(args[0])));
+			server = new MemberServer("localhost", 4444);
+		} catch (UnknownHostException e) {
+			System.out.println("Error: Unknown host");
+			System.exit(-1);
+		} catch (SocketException e) {
+			System.out.println("Error: Unable to open socket");
+			System.exit(-1);
 		} catch (IOException e) {
-			System.err.println("Could not listen on port: 4444.");
+			System.out.println("Could not listen on port.");
 			System.exit(-1);
 		}
         //starting heartbeat thread
+        new HeartBeatServiceThread(server).start();
 
 		while (listening)
 		{
