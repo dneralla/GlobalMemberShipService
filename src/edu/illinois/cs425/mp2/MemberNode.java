@@ -14,24 +14,11 @@ public class MemberNode {
 	private InetAddress hostAddress;
 	private int hostPort;
 	private DatagramSocket socket;
-	public DatagramSocket getSocket() {
-		return socket;
-	}
-
-	public void setSocket(DatagramSocket socket) {
-		this.socket = socket;
-	}
-
-	public MulticastSocket getMulticastSocket() {
-		return multicastSocket;
-	}
-
-	public void setMulticastSocket(MulticastSocket multicastSocket) {
-		this.multicastSocket = multicastSocket;
-	}
-
 	private MulticastSocket multicastSocket;
 
+	public DatagramSocket getSocket() {
+			return socket;
+	}
 	public MemberNode(InetAddress hostAddress, int hostPort)
 	{
 		this.hostAddress=hostAddress;

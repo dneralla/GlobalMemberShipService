@@ -70,7 +70,7 @@ public class MemberServer {
 	}
 
 	public DatagramSocket getSocket() {
-       return getNode().getSocket();
+       return node.getSocket();
 	}
 	public static void main(String[] args) throws IOException {
 
