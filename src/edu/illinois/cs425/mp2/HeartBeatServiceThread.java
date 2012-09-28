@@ -19,6 +19,7 @@ public class HeartBeatServiceThread extends Thread {
         int port;
         DatagramSocket socket = server.getSocket();
 		while (true) {
+			System.out.println("trying to send hearbeat message");
 			if (server.getSendHeartBeat()) {
 				// send HeartBeat request
 		        address = server.getNeighborNode().getHostAddress();

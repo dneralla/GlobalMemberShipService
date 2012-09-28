@@ -20,7 +20,7 @@ public class MemberServer {
 	private volatile MemberNode neighborNode;
 	private volatile Timer lastReceivedHeartBeat;
 	private volatile boolean sendHeartBeat;
-	private volatile List<MemberServer> globalList;
+	private volatile List<MemberNode> globalList;
 
 	public MemberNode getNeighborNode() {
 		return neighborNode;
@@ -33,7 +33,7 @@ public class MemberServer {
 	private MemberServer() {
 		// initially doesn't have any neighbors
 		this.neighborNode = null;
-		this.globalList = new LinkedList<MemberServer>(Arrays.asList(this));
+		this.globalList = new LinkedList<MemberNode>(Arrays.asList(node));
 		this.sendHeartBeat = false;
 	}
 
@@ -81,7 +81,7 @@ public class MemberServer {
 		MemberServer server = null;
 		boolean listening = true;
 		try {
-			server = MemberServer.start("localhost", 4444);
+			server = MemberServer.start("localhost", 5065);
 		} catch (SocketException e) {
 			System.out.println("Error: Unable to open socket");
 			System.exit(-1);
@@ -91,11 +91,9 @@ public class MemberServer {
 		}
         //starting heartbeat thread
         new HeartBeatServiceThread(server).start();
-
-		while (listening)
-		{
-			new MemberServerThread(server).start();
-		}
-
+        
+        while(listening)
+        { new Processor(server).run();
+        }
 	}
 }
