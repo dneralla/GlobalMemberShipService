@@ -8,12 +8,12 @@ import java.util.Scanner;
 import java.util.TimerTask;
 
 public class Processor {
-	private final MemberServer server;
+	private static MemberServer server;
 	TimerTask task ;
 	
 	
 	public Processor(MemberServer server) {
-         this.server=server;
+         Processor.server=server;
          initializeTimerTask();
         
          }
@@ -41,29 +41,43 @@ public class Processor {
 		    in = new ObjectInputStream(bis);
 		    message = (Message)in.readObject();
 			if(message.getMessageType().equals(MessageTypes.JOIN))
-			{
-			  	new Thread()
+			{   
+				System.out.println("Join message receieved");
+				new ServiceThread(senderAddress,port,message)
 			  	{  public void run()
 			  	    {
-			  		serviceJoinRequest();
-			  	     }
+			  		try {
+			  			
+						serviceJoinRequest(this.getAddr(),this.getPort(),this.getMessage());
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			  	    }
 			  	}.start();
 			}
 			else if(message.getMessageType().equals(MessageTypes.HEART_BEAT))
 			{
-		        updateTimer();
-		      
-			   
-			}
+		        //System.out.println("heartbeat receieved");
+				updateTimer();
+		    }
 			else if(message.getMessageType().equals(MessageTypes.LEAVE))
 			{
-				
+				new Thread()
+				{
+					public void run()
+					{
+						serviceLeaveRequest();
+					}
+				}.start();
+			}
+			else if (message.getMessageType().equals(MessageTypes.JOIN_ACK))
+			{
+				System.out.println("Join ack receieved");
+				onJoinAck(senderAddress,port,message);
 			}
 			
-			
-			
-			}
-		catch(Exception e)
+		}catch(Exception e)
 		{
 			
 			
@@ -75,18 +89,35 @@ public class Processor {
 	
 	public void updateTimer()
 	{
-		this.server.getLastReceivedHeartBeat().cancel();
-		this.server.getLastReceivedHeartBeat().schedule(this.task,2*1000);
+		Processor.server.getLastReceivedHeartBeat().cancel();
+		Processor.server.getLastReceivedHeartBeat().schedule(this.task,2*1000);
 	}
 	
-	public void serviceJoinRequest()
+	public void serviceJoinRequest(InetAddress addr, int port, Message message) throws Exception
+	{
+	    System.out.println("Servicing Join request");
+		Processor.server.setNeighborNode(new MemberNode(addr,port));
+	    byte [] buf = new Message(MessageTypes.JOIN_ACK).toBytes();
+	    DatagramPacket packet = new DatagramPacket(buf,buf.length,addr,port);
+	    Processor.server.getSocket().send(packet);
+	    //multicast to all servers too
+     }
+	
+	public void onJoinAck(InetAddress addr,int port,Message message)
+	{
+		System.out.println("Join Acknowledging");
+		Processor.server.setNeighborNode(new MemberNode(addr,port));
+		Processor.server.setSendHeartBeat(true);
+	}
+	public void serviceLeaveRequest()
 	{
 		
 	}
 	
 	public void processFailure()
 	{
-		
+		System.out.println("failure Detected");
+		//TODO update table and multicast
 	}
 	
 	public void initializeTimerTask()

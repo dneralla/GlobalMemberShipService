@@ -1,7 +1,9 @@
 package edu.illinois.cs425.mp2;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -19,9 +21,9 @@ public class MemberServer {
 	private MemberNode node;
 	private volatile MemberNode neighborNode;
 	private volatile Timer lastReceivedHeartBeat;
-	private volatile boolean sendHeartBeat;
+	private volatile boolean sendHeartBeat=false;
 	private volatile List<MemberNode> globalList;
-
+	
 	public MemberNode getNeighborNode() {
 		return neighborNode;
 	}
@@ -29,7 +31,7 @@ public class MemberServer {
 	public void setNeighborNode(MemberNode neighborNode) {
 		this.neighborNode = neighborNode;
 	}
-
+    
 	private MemberServer() {
 		// initially doesn't have any neighbors
 		this.neighborNode = null;
@@ -57,6 +59,7 @@ public class MemberServer {
 	public static MemberServer start(String hostName, int hostPort) throws SocketException {
         MemberServer server = new MemberServer();
         server.setNode(MemberNode.start(hostName, hostPort));
+        server.setNeighborNode(server.getNode());
         return server;
 	}
 
@@ -72,21 +75,32 @@ public class MemberServer {
 	public DatagramSocket getSocket() {
        return node.getSocket();
 	}
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args)  {
 
 //		if(args.length < 2) {
 //			System.out.println("Usage: java <portnumber>");
 //            return;
 //		}
 		MemberServer server = null;
+		MemberServer neighbor = null;
+		
 		boolean listening = true;
 		try {
-			server = MemberServer.start("localhost", 5065);
+			server = MemberServer.start("localhost", Integer.parseInt("5070"));
+			server.sendHeartBeat=true;
+		    neighbor = MemberServer.start("localHost",5090 );
+		     byte[] buf = new Message(MessageTypes.JOIN).toBytes();
+		     DatagramPacket packet = new DatagramPacket(buf,buf.length,server.node.getHostAddress(),server.node.getHostPort());
+		     neighbor.getSocket().send(packet);
 		} catch (SocketException e) {
 			System.out.println("Error: Unable to open socket");
 			System.exit(-1);
 		} catch (IOException e) {
-			System.out.println("Could not listen on port.");
+			System.out.println("Could not	 listen on port.");
+			System.exit(-1);
+		}
+		catch(Exception e) {
+			System.out.println("Byte Construction failed");
 			System.exit(-1);
 		}
         //starting heartbeat thread
@@ -94,6 +108,6 @@ public class MemberServer {
         
         while(listening)
         { new Processor(server).run();
-        }
+         
 	}
-}
+}}

@@ -6,6 +6,8 @@ public class MessageTypes {
 	static final String HEART_BEAT="HEART BEAT";
 	static final String LEAVE="LEAVE";
 	
+	static final String JOIN_ACK="JOIN_ACK";
+	
 	
 	
 

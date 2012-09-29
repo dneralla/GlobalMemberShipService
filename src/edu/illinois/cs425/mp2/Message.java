@@ -1,4 +1,6 @@
 package edu.illinois.cs425.mp2;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 
@@ -11,9 +13,18 @@ public class Message implements Serializable{
 	
 	static final int MAX_MESSAGE_LENGTH=1024;
 	
-	private String messageType; //Can be JOIN ,LEAVE,HEARTBEAT
+	private String messageType;
 	private InetAddress host;
-	private InetAddress port;
+	private int port;
+	
+	//Can be JOIN ,LEAVE,HEARTBEAT
+	//private InetAddress host;
+	//private int port;
+	
+	public Message(String messageType)
+    {
+	  this.messageType=messageType;	
+	}
 	
 	public String getMessageType() {
 		return messageType;
@@ -22,6 +33,39 @@ public class Message implements Serializable{
 		this.messageType = messageType;
 	}
 	
+	
+	public byte[] toBytes() throws Exception
+	{
+		byte[] yourBytes=null;
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutputStream out = null;
+		try {
+		  out = new ObjectOutputStream(bos);   
+		  out.writeObject(this);
+		  yourBytes = bos.toByteArray();
+		} finally {
+			out.close();
+			bos.close();
+		}
+		
+		return yourBytes;
+	}
+
+	public InetAddress getHost() {
+		return host;
+	}
+
+	public void setHost(InetAddress host) {
+		this.host = host;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
 	
 	
 	

@@ -1,6 +1,8 @@
 package edu.illinois.cs425.mp2;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -14,12 +16,35 @@ public class HeartBeatServiceThread extends Thread {
 
 	@Override
 	public void run() {
-		byte[] buf = HeartBeatMessage.getBytes();
+		Message m = new Message(MessageTypes.HEART_BEAT);
+		byte buf[]=new byte[Message.MAX_MESSAGE_LENGTH] ;
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutputStream out = null;
+		try {
+		  out = new ObjectOutputStream(bos);   
+		  out.writeObject(m);
+		  buf=bos.toByteArray();
+		} 
+		catch(Exception e)
+		 {
+			e.printStackTrace();
+		 }finally {
+		  try {
+			out.close();
+			bos.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		  
+		}
+
+		
         InetAddress address;
         int port;
         DatagramSocket socket = server.getSocket();
 		while (true) {
-			System.out.println("trying to send hearbeat message");
+			
 			if (server.getSendHeartBeat()) {
 				// send HeartBeat request
 		        address = server.getNeighborNode().getHostAddress();
