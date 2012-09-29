@@ -22,7 +22,7 @@ public class MemberServer {
 	// node information
 	private MemberNode node;
 	private volatile MemberNode neighborNode;
-	private volatile Timer lastReceivedHeartBeat;
+	private volatile long lastReceivedHeartBeatTime;
 	private volatile boolean sendHeartBeat = false;
 	private volatile List<MemberNode> globalList;
 
@@ -41,12 +41,12 @@ public class MemberServer {
 		this.sendHeartBeat = false;
 	}
 
-	public Timer getLastReceivedHeartBeat() {
-		return lastReceivedHeartBeat;
+	public long getLastReceivedHeartBeatTime() {
+		return lastReceivedHeartBeatTime;
 	}
 
-	public void setLastReceivedHeartBeat(Timer lastReceivedHeartBeat) {
-		this.lastReceivedHeartBeat = lastReceivedHeartBeat;
+	public void setLastReceivedHeartBeatTime(long lastReceivedHeartBeat) {
+		this.lastReceivedHeartBeatTime = lastReceivedHeartBeat;
 	}
 
 	public boolean getSendHeartBeat() {

@@ -9,11 +9,12 @@ import java.util.TimerTask;
 public class ProcessorThread extends Thread {
 	private static MemberServer server;
 	TimerTask task ;
+	static boolean toStartHeartBeating=false;
 
 
 	public ProcessorThread(MemberServer server) {
          ProcessorThread.server=server;
-         initializeTimerTask();
+        
          }
 
 
@@ -61,6 +62,11 @@ public class ProcessorThread extends Thread {
 			else if(message.getMessageType().equals(MessageTypes.HEART_BEAT))
 			{
 		        //System.out.println("heartbeat receieved");
+				if(!ProcessorThread.toStartHeartBeating)
+					{
+					startTimerThread();
+					ProcessorThread.toStartHeartBeating=true;
+					}
 				updateTimer();
 		    }
 			else if(message.getMessageType().equals(MessageTypes.LEAVE))
@@ -93,9 +99,10 @@ public class ProcessorThread extends Thread {
 	public void updateTimer()
 	{  
 	
-		ProcessorThread.server.getLastReceivedHeartBeat().cancel();
+		/*ProcessorThread.server.getLastReceivedHeartBeat().cancel();
 		ProcessorThread.server.getLastReceivedHeartBeat().schedule(this.task,2*1000);
-	    System.out.println("timertask");
+	    System.out.println("timertask");*/
+		ProcessorThread.server.setLastReceivedHeartBeatTime(System.currentTimeMillis());
 	}
 
 	public void serviceJoinRequest(InetAddress addr, int port, Message message) throws Exception
@@ -124,22 +131,33 @@ public class ProcessorThread extends Thread {
 
 	public void processFailure()
 	{
-		System.out.println("failure Detected");
-		//TODO update table and multicast
+	
+		System.out.println("failureDetected");
 	}
 
-	public void initializeTimerTask()
-	{
-		this.task = new TimerTask(){
-			@Override
-			public void run()
-			{
-				System.out.println("failure Detected");
-				processFailure();
-			}
-		};
+	
+	
+	public void startTimerThread()
+    {
+            new Thread(){
+                    public void run()
+                    {
+                       while(true)
+                       {
+                               if(System.currentTimeMillis()-ProcessorThread.server.getLastReceivedHeartBeatTime() >5*1000)
+                               {  
+                            	  
+                                 System.out.println("Detected");
+                                 processFailure();
+                                 ProcessorThread.toStartHeartBeating=false;
+                                 this.stop();
+                               }}
+                           
+                      }
+            }.start();
 
-	}
+    }
+	
 }
 
 
