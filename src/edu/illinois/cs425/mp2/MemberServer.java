@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -77,24 +78,19 @@ public class MemberServer {
 		return node.getSocket();
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		// if(args.length < 2) {
 		// System.out.println("Usage: java <portnumber>");
 		// return;
 		// }
 		MemberServer server = null;
-		MemberServer neighbor = null;
+		
 
 		boolean listening = true;
 		try {
-			server = MemberServer.start("localhost", Integer.parseInt("5070"));
-			server.sendHeartBeat = true;
-			neighbor = MemberServer.start("localHost", 5090);
-			byte[] buf = new Message(MessageTypes.JOIN).toBytes();
-			DatagramPacket packet = new DatagramPacket(buf, buf.length,
-					server.node.getHostAddress(), server.node.getHostPort());
-			neighbor.getSocket().send(packet);
+			server = MemberServer.start("localhost", Integer.parseInt(args[0]));
+			
 		} catch (SocketException e) {
 			System.out.println("Error: Unable to open socket");
 			System.exit(-1);
@@ -119,10 +115,10 @@ public class MemberServer {
 			while ((inputLine = in.readLine()) != null) {
 				if (inputLine.startsWith("join")) {
 					byte[] buf = new byte[256];
-					buf = inputLine.getBytes();
+					buf = new Message(MessageTypes.JOIN).toBytes();
 					// InetAddress address = InetAddress.getByName(args[0]);
-					DatagramPacket packet = new DatagramPacket(buf, buf.length);
-					socket.send(packet);
+					DatagramPacket packet = new DatagramPacket(buf, buf.length,InetAddress.getByName("localhost"),5090);
+				     server.getSocket().send(packet);
 				} else if (inputLine.startsWith("leave")) {
 
 				} else if (inputLine.equals("help")) {

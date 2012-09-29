@@ -47,6 +47,7 @@ public class HeartBeatServiceThread extends Thread {
 			
 			if (server.getSendHeartBeat()) {
 				// send HeartBeat request
+				//System.out.println( server.getNeighborNode().getHostPort());
 		        address = server.getNeighborNode().getHostAddress();
 		        port = server.getNeighborNode().getHostPort();
 		        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);

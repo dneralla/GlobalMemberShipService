@@ -21,13 +21,16 @@ public class ProcessorThread extends Thread {
 
     @Override
 	public void run() {
-
+        
 		DatagramPacket packet;
 		Message message;
 		InetAddress senderAddress;
 		int port;
+		while (true)
+		{
 		byte receiveMessage[] = new byte[Message.MAX_MESSAGE_LENGTH];
 
+		
 		try
 		{
 			packet=new DatagramPacket(receiveMessage,receiveMessage.length);
@@ -83,14 +86,16 @@ public class ProcessorThread extends Thread {
 
 		}
 
-
+		}
 
 	}
 
 	public void updateTimer()
-	{
+	{  
+	
 		ProcessorThread.server.getLastReceivedHeartBeat().cancel();
 		ProcessorThread.server.getLastReceivedHeartBeat().schedule(this.task,2*1000);
+	    System.out.println("timertask");
 	}
 
 	public void serviceJoinRequest(InetAddress addr, int port, Message message) throws Exception
@@ -100,6 +105,8 @@ public class ProcessorThread extends Thread {
 	    byte [] buf = new Message(MessageTypes.JOIN_ACK).toBytes();
 	    DatagramPacket packet = new DatagramPacket(buf,buf.length,addr,port);
 	    ProcessorThread.server.getSocket().send(packet);
+	    
+	    ProcessorThread.server.setSendHeartBeat(true);
 	    //multicast to all servers too
      }
 
@@ -107,6 +114,7 @@ public class ProcessorThread extends Thread {
 	{
 		System.out.println("Join Acknowledging");
 		ProcessorThread.server.setNeighborNode(new MemberNode(addr,port));
+		System.out.println("heartbeat setting true");
 		ProcessorThread.server.setSendHeartBeat(true);
 	}
 	public void serviceLeaveRequest()
