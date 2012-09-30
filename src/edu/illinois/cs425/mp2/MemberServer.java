@@ -10,7 +10,6 @@ import java.net.SocketException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
 
 /*
  * Class for starting server. For each new request, a separate thread is spawned
@@ -25,6 +24,14 @@ public class MemberServer {
 	private volatile long lastReceivedHeartBeatTime;
 	private volatile boolean sendHeartBeat = false;
 	private volatile List<MemberNode> globalList;
+
+	public List<MemberNode> getGlobalList() {
+		return globalList;
+	}
+
+	public void setGlobalList(List<MemberNode> globalList) {
+		this.globalList = globalList;
+	}
 
 	public MemberNode getNeighborNode() {
 		return neighborNode;
@@ -78,6 +85,27 @@ public class MemberServer {
 		return node.getSocket();
 	}
 
+	public synchronized void mergeMemberList(MemberNode node, String messageType) {
+		assert messageType.equals("JOIN") || messageType.equals("LEAVE");
+		boolean isNewEntry = true;
+		for (MemberNode member : globalList) {
+			if (member.compareTo(node)) {
+				isNewEntry = false;
+				if (node.getTimeStamp().after(member.getTimeStamp())) {
+					if (messageType.equals("JOIN")) {
+						member.setTimeStamp(node.getTimeStamp());
+					} else {
+						globalList.remove(member);
+						break;
+					}
+				}
+			}
+		}
+		if (isNewEntry) {
+			globalList.add(node);
+		}
+	}
+
 	public static void main(String[] args) throws Exception {
 
 		// if(args.length < 2) {
@@ -85,12 +113,11 @@ public class MemberServer {
 		// return;
 		// }
 		MemberServer server = null;
-		
-
+        MulticastServer multicastServer = new MulticastServer();
 		boolean listening = true;
 		try {
 			server = MemberServer.start("localhost", Integer.parseInt(args[0]));
-			
+
 		} catch (SocketException e) {
 			System.out.println("Error: Unable to open socket");
 			System.exit(-1);
@@ -103,7 +130,7 @@ public class MemberServer {
 		}
 		// starting heartbeat thread
 		new HeartBeatServiceThread(server).start();
-		new ProcessorThread(server).start();
+		new ProcessorThread(server, multicastServer).start();
 
 		try {
 			DatagramSocket socket;
@@ -117,8 +144,9 @@ public class MemberServer {
 					byte[] buf = new byte[256];
 					buf = new Message(MessageTypes.JOIN).toBytes();
 					// InetAddress address = InetAddress.getByName(args[0]);
-					DatagramPacket packet = new DatagramPacket(buf, buf.length,InetAddress.getByName("localhost"),5090);
-				     server.getSocket().send(packet);
+					DatagramPacket packet = new DatagramPacket(buf, buf.length,
+							InetAddress.getByName("localhost"), 5090);
+					server.getSocket().send(packet);
 				} else if (inputLine.startsWith("leave")) {
 
 				} else if (inputLine.equals("help")) {

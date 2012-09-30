@@ -7,15 +7,21 @@ package edu.illinois.cs425.mp2;
  */
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Date;
 public class MemberNode {
 	private InetAddress hostAddress;
 	private int hostPort;
 	private DatagramSocket socket;
-	private MulticastSocket multicastSocket;
+	private Date timeStamp;
 
+	public Date getTimeStamp() {
+		return timeStamp;
+	}
+	public void setTimeStamp(Date timeStamp) {
+		this.timeStamp = timeStamp;
+	}
 	public DatagramSocket getSocket() {
 			return socket;
 	}
@@ -62,6 +68,12 @@ public class MemberNode {
 
     public void stopNode() {
     	socket.close();
-    	multicastSocket.close();
     }
+
+    public boolean compareTo(MemberNode node) {
+        if(this.getHostAddress().equals(node.getHostAddress()) &&
+        		this.getHostPort() == node.getHostPort())
+        	return true;
+        return false;
+	}
 }
