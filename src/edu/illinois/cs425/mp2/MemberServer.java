@@ -85,9 +85,9 @@ public class MemberServer {
 		return node.getSocket();
 	}
 
-	public synchronized void mergeMemberList(MemberNode node, String messageType) {
-		assert messageType.equals("JOIN") || messageType.equals("LEAVE");
-		boolean isNewEntry = true;
+	public synchronized boolean mergeMemberList(MemberNode node, String messageType) {
+
+		boolean isLatest= false, isNewEntry = true;
 		for (MemberNode member : globalList) {
 			if (member.compareTo(node)) {
 				isNewEntry = false;
@@ -98,13 +98,16 @@ public class MemberServer {
 						globalList.remove(member);
 						break;
 					}
+					isLatest = true;
 				}
 			}
 		}
 		if (isNewEntry) {
 			globalList.add(node);
 		}
+		return isLatest;
 	}
+
 
 	public static void main(String[] args) throws Exception {
 
@@ -113,11 +116,11 @@ public class MemberServer {
 		// return;
 		// }
 		MemberServer server = null;
-        MulticastServer multicastServer = new MulticastServer();
+		MulticastServer multicastServer = null;
 		boolean listening = true;
 		try {
 			server = MemberServer.start("localhost", Integer.parseInt(args[0]));
-
+			multicastServer = new MulticastServer(server);
 		} catch (SocketException e) {
 			System.out.println("Error: Unable to open socket");
 			System.exit(-1);

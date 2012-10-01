@@ -80,6 +80,20 @@ public class ProcessorThread extends Thread {
 					System.out.println("Join ack receieved, message has multicast info and " +
 							"neighbor node");
 					onJoinAck(/*senderAddress, port, */message);
+				} else if (message.getMessageType().startsWith("MULTICAST")) {
+					System.out.println("Need to check whether this (relayed) message has already been received");
+					new ServiceThread(senderAddress, port, message) {
+						@Override
+						public void run() {
+							try {
+								requestMulticastOnceMore(this.getAddr(),
+										this.getPort(), this.getMessage());
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}.start();
 				}
 
 			} catch (Exception e) {
@@ -88,6 +102,18 @@ public class ProcessorThread extends Thread {
 
 		}
 
+	}
+
+
+
+	protected void requestMulticastOnceMore(InetAddress addr, int port,
+			Message message) {
+		boolean isChangeMadetoMemberList;
+//		if ( isChangeMadetoMemberList = server.mergeMemberList(server.getNode(), message.getMessageType())) {
+//		message.setMessageType("RE" + message.getMessageType());
+//		DatagramPacket packet = new DatagramPacket(message.toBytes(), Message.MAX_MESSAGE_LENGTH , this.getMulticastServer().getMulticastGroup(), this.getMulticastServer().getMulticastPort());
+//		this.getMulticastServer().getMulticastSocket().send(packet);
+//		}
 	}
 
 	public void updateTimer() {
@@ -106,33 +132,47 @@ public class ProcessorThread extends Thread {
 			throws Exception {
 		System.out.println("Servicing Join request");
 		server.setNeighborNode(new MemberNode(addr, port));
-		byte[] buf = new Message(MessageTypes.JOIN_ACK).toBytes();
+
+		// merge the list with the port
+		server.mergeMemberList(new MemberNode(addr, port), MessageTypes.JOIN);
+
+		Message ackMessage = new Message(MessageTypes.JOIN_ACK);
+		ackMessage.setMulticastGroup(multicastServer.getMulticastGroup());
+		ackMessage.setMulticastPort(multicastServer.getMulticastPort());
+		ackMessage.setMessageType("JOIN_ACK");
+
+		byte[] buf = ackMessage.toBytes();
 		DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, port);
 		ProcessorThread.server.getSocket().send(packet);
 		ProcessorThread.server.setSendHeartBeat(true);
-		// merge the list with the port
+
+
 		// ensure reliability in 5 seconds (TODO)
 		// send back the multi-cast group, port number neighbour to new node
+		ProcessorThread.server.getSocket().send(packet);
 
 	}
 
-	private void doReliableMultiCast() {
+	private void ensurReliableMultiCast() {
 		// do multicast while there is still some non synchronized server
 	}
 
 
 	private void stopMultiCastServer() {
-
+		multicastServer.stop();
 	}
 
 	public void onJoinAck(Message message) throws Exception {
 
 		System.out.println("Join Acknowledging");
 		ProcessorThread.server.setNeighborNode(new MemberNode(message.getHost(), message.getPort()));
+
 		System.out.println("heartbeat setting true");
 		ProcessorThread.server.setSendHeartBeat(true);
 		ProcessorThread.multicastServer.ensureRunning(message.getMulticastGroup(), message.getMulticastPort());
-        Message multicastMessage = new Message(MessageTypes.MULTICAST);
+
+        Message multicastMessage = new Message(MessageTypes.MULTICAST_JOIN);
+
 		byte[] buf = multicastMessage.toBytes();
 		DatagramPacket packet =
 				new DatagramPacket(buf, buf.length, multicastServer.getMulticastGroup(), multicastServer.getMulticastPort());

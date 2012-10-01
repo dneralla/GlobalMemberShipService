@@ -70,10 +70,10 @@ public class MemberNode {
     	socket.close();
     }
 
-    public boolean compareTo(MemberNode node) {
-        if(this.getHostAddress().equals(node.getHostAddress()) &&
-        		this.getHostPort() == node.getHostPort())
-        	return true;
-        return false;
+	public boolean compareTo(MemberNode node) {
+		if (this.getHostAddress().equals(node.getHostAddress())
+				&& this.getHostPort() == node.getHostPort())
+			return true;
+		return false;
 	}
 }

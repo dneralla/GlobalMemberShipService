@@ -11,14 +11,33 @@ public class Message implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	static final int MAX_MESSAGE_LENGTH=1024;
+	static final int MAX_MESSAGE_LENGTH = 1024;
 
 	private String messageType;
 	private InetAddress host;
 	private int port;
 	private int multicastPort;
 	private InetAddress multicastGroup;
-    public int getMulticastPort() {
+	private InetAddress originalHost;
+	private int originalPort;
+
+    public InetAddress getOriginalHost() {
+		return originalHost;
+	}
+
+	public void setOriginalHost(InetAddress originalHost) {
+		this.originalHost = originalHost;
+	}
+
+	public int getOriginalPort() {
+		return originalPort;
+	}
+
+	public void setOriginalPort(int originalPort) {
+		this.originalPort = originalPort;
+	}
+
+	public int getMulticastPort() {
 		return multicastPort;
 	}
 
@@ -46,6 +65,7 @@ public class Message implements Serializable{
 	public String getMessageType() {
 		return messageType;
 	}
+
 	public void setMessageType(String messageType) {
 		this.messageType = messageType;
 	}

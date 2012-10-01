@@ -8,7 +8,19 @@ public class MulticastServer {
 
 	private boolean isRunning;
 	public int multicastPort;
+	private MemberServer server;
+	public MemberServer getServer() {
+		return server;
+	}
 
+	public void setServer(MemberServer server) {
+		this.server = server;
+	}
+
+
+    public MulticastServer(MemberServer server) {
+    		this.server = server;
+    }
 
 	public int getMulticastPort() {
 		return multicastPort;
@@ -41,7 +53,7 @@ public class MulticastServer {
 	}
 
 	public synchronized void ensureRunning(InetAddress multicastGroup, int multicastPort) throws IOException {
-		// TODO Auto-generated method stub
+		// senderAddressTODO Auto-generated method stub
 		if(!isRunning) {
 			this.multicastGroup = multicastGroup;
 			this.multicastPort = multicastPort;
