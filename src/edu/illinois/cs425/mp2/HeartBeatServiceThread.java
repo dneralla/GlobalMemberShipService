@@ -16,15 +16,15 @@ public class HeartBeatServiceThread extends Thread {
 
 	@Override
 	public void run() {
-		Message m = new Message(MessageTypes.HEART_BEAT);
+		Message m = new HeartBeatMessage("HEARTBEAT");
 		byte buf[]=new byte[Message.MAX_MESSAGE_LENGTH] ;
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		ObjectOutputStream out = null;
 		try {
-		  out = new ObjectOutputStream(bos);   
+		  out = new ObjectOutputStream(bos);
 		  out.writeObject(m);
 		  buf=bos.toByteArray();
-		} 
+		}
 		catch(Exception e)
 		 {
 			e.printStackTrace();
@@ -35,20 +35,21 @@ public class HeartBeatServiceThread extends Thread {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
+
 		}
-		  
+
 		}
         //hello
-		
+
         InetAddress address;
         int port;
         DatagramSocket socket = server.getSocket();
 		while (true) {
-			
+
 			if (server.getSendHeartBeat()) {
 				// send HeartBeat request
 				//System.out.println( server.getNeighborNode().getHostPort());
+				ProcessorThread.getServer();
 		        address = server.getNeighborNode().getHostAddress();
 		        port = server.getNeighborNode().getHostPort();
 		        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);

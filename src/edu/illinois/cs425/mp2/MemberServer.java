@@ -7,9 +7,14 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /*
  * Class for starting server. For each new request, a separate thread is spawned
@@ -24,6 +29,17 @@ public class MemberServer {
 	private volatile long lastReceivedHeartBeatTime;
 	private volatile boolean sendHeartBeat = false;
 	private volatile List<MemberNode> globalList;
+    private volatile Logger logger;
+    private DatagramSocket socket;
+
+
+	public Logger getLogger() {
+		return logger;
+	}
+
+	public void setLogger(Logger logger) {
+		this.logger = logger;
+	}
 
 	public List<MemberNode> getGlobalList() {
 		return globalList;
@@ -65,29 +81,35 @@ public class MemberServer {
 	}
 
 	public static MemberServer start(String hostName, int hostPort)
-			throws SocketException {
+			throws SocketException, UnknownHostException {
 		MemberServer server = new MemberServer();
-		server.setNode(MemberNode.start(hostName, hostPort));
-		server.setNeighborNode(server.getNode());
+		MemberNode node = new MemberNode(hostName, hostPort);
+	    server.socket = new DatagramSocket(hostPort);
+	    server.setNode(node);
+		server.setNeighborNode(node);
 		return server;
 	}
 
-	public void setNode(MemberNode node) {
+	private void setNode(MemberNode node) {
 		// TODO Auto-generated method stub
 		this.node = node;
 	}
+
+	public void stop() {
+    	socket.close();
+    }
 
 	public MemberNode getNode() {
 		return node;
 	}
 
 	public DatagramSocket getSocket() {
-		return node.getSocket();
+		return socket;
 	}
 
 	public synchronized boolean mergeMemberList(MemberNode node, String messageType) {
 
-		boolean isLatest= false, isNewEntry = true;
+		boolean isLatestUpdate = false, isNewEntry = true;
 		for (MemberNode member : globalList) {
 			if (member.compareTo(node)) {
 				isNewEntry = false;
@@ -98,16 +120,24 @@ public class MemberServer {
 						globalList.remove(member);
 						break;
 					}
-					isLatest = true;
+					isLatestUpdate = true;
 				}
 			}
 		}
-		if (isNewEntry) {
+		if (isNewEntry && messageType.equals("JOIN")) {
 			globalList.add(node);
+			isLatestUpdate = true;
 		}
-		return isLatest;
+		return isLatestUpdate;
 	}
 
+    public void sendMessage(Message message, MemberNode receiver) throws Exception {
+        System.out.println("Sending message " + message);
+    	getLogger().info(message.getDescription());
+    	DatagramPacket packet = new DatagramPacket(message.toBytes(),
+				message.toBytes().length, receiver.getHostAddress(), receiver.getHostPort());
+		getSocket().send(packet);
+    }
 
 	public static void main(String[] args) throws Exception {
 
@@ -117,7 +147,19 @@ public class MemberServer {
 		// }
 		MemberServer server = null;
 		MulticastServer multicastServer = null;
+		FileHandler fileTxt = new FileHandler("Server.log");
+		SimpleFormatter formatterTxt = new SimpleFormatter();
 		boolean listening = true;
+
+		// Create Logger
+		Logger logger = Logger.getLogger(MemberServer.class.getName());
+		logger.setLevel(Level.INFO);
+
+		// Create txt Formatter
+		formatterTxt = new SimpleFormatter();
+		fileTxt.setFormatter(formatterTxt);
+		logger.addHandler(fileTxt);
+
 		try {
 			server = MemberServer.start("localhost", Integer.parseInt(args[0]));
 			multicastServer = new MulticastServer(server);
@@ -131,6 +173,7 @@ public class MemberServer {
 			System.out.println("Byte Construction failed");
 			System.exit(-1);
 		}
+		logger.info("Staring logging");
 		// starting heartbeat thread
 		new HeartBeatServiceThread(server).start();
 		new ProcessorThread(server, multicastServer).start();
@@ -145,7 +188,7 @@ public class MemberServer {
 			while ((inputLine = in.readLine()) != null) {
 				if (inputLine.startsWith("join")) {
 					byte[] buf = new byte[256];
-					buf = new Message(MessageTypes.JOIN).toBytes();
+					buf = new JoinMessage("JOIN").toBytes();
 					// InetAddress address = InetAddress.getByName(args[0]);
 					DatagramPacket packet = new DatagramPacket(buf, buf.length,
 							InetAddress.getByName("localhost"), 5090);

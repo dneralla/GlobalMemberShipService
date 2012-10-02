@@ -1,10 +1,13 @@
 package edu.illinois.cs425.mp2;
+
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.util.Date;
+import java.util.List;
 
-public class Message implements Serializable{
+public abstract class Message implements Serializable {
 
 	/**
 	 *
@@ -21,7 +24,25 @@ public class Message implements Serializable{
 	private InetAddress originalHost;
 	private int originalPort;
 
-    public InetAddress getOriginalHost() {
+	private MemberNode node, sourceNode, predecessorNode;
+
+	public MemberNode getNode() {
+		return node;
+	}
+
+	public void setNode(MemberNode node) {
+		this.node = node;
+	}
+
+	public MemberNode getSourceNode() {
+		return sourceNode;
+	}
+
+	public void setSourceNode(MemberNode sourceNode) {
+		this.sourceNode = sourceNode;
+	}
+
+	public InetAddress getOriginalHost() {
 		return originalHost;
 	}
 
@@ -53,13 +74,12 @@ public class Message implements Serializable{
 		this.multicastGroup = multicastGroup;
 	}
 
-	//Can be JOIN ,LEAVE,HEARTBEAT
-	//private InetAddress host;
-	//private int port;
+	// Can be JOIN ,LEAVE,HEARTBEAT
+	// private InetAddress host;
+	// private int port;
 
-	public Message(String messageType)
-    {
-	  this.messageType=messageType;
+	public Message(String messageType) {
+		this.messageType = messageType;
 	}
 
 	public String getMessageType() {
@@ -70,16 +90,14 @@ public class Message implements Serializable{
 		this.messageType = messageType;
 	}
 
-
-	public byte[] toBytes() throws Exception
-	{
-		byte[] yourBytes=null;
+	public byte[] toBytes() throws Exception {
+		byte[] yourBytes = null;
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		ObjectOutputStream out = null;
 		try {
-		  out = new ObjectOutputStream(bos);
-		  out.writeObject(this);
-		  yourBytes = bos.toByteArray();
+			out = new ObjectOutputStream(bos);
+			out.writeObject(this);
+			yourBytes = bos.toByteArray();
 		} finally {
 			out.close();
 			bos.close();
@@ -103,4 +121,41 @@ public class Message implements Serializable{
 	public void setPort(int port) {
 		this.port = port;
 	}
+
+	public String getDescription() {
+		// TODO Auto-generated method stub
+		return getMessageType() + " ";
+	}
+
+	public boolean checkIsIntructionJoinVariant() {
+		return this instanceof JoinMessage ||
+			   this instanceof MulticastJoinMessage;
+	}
+	public boolean mergeIntoMemberList() {
+		List<MemberNode> globalList = ProcessorThread.getServer()
+				.getGlobalList();
+		boolean isLatestUpdate = false, isNewEntry = true;
+		Date timeStamp = getNode().getTimeStamp();
+		for (MemberNode member : globalList) {
+			if (member.compareTo(getNode())) {
+				isNewEntry = false;
+				if (timeStamp.after(member.getTimeStamp())) {
+					if (checkIsIntructionJoinVariant()) {
+						member.setTimeStamp(getNode().getTimeStamp());
+					} else if (checkIsIntructionJoinVariant()) {
+						globalList.remove(member);
+					}
+					isLatestUpdate = true;
+				}
+			}
+		}
+		// missing out the case where join message appears after leave message
+		if (isNewEntry) {
+			globalList.add(getNode());
+			isLatestUpdate = true;
+		}
+		return isLatestUpdate;
+	}
+	 public abstract void processMessage();
+	// public abstract void mergeIntoMessageList();
 }

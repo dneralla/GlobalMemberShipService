@@ -35,6 +35,7 @@ public class MulticastServerThread extends Thread {
 				ObjectInputStream in = null;
 				in = new ObjectInputStream(bis);
 				message = (Message) in.readObject();
+				multicastServer.getServer().getLogger().info(message.getDescription());
 				if (message.getMessageType().startsWith("MULTICAST")) {
 					multicastServer.getServer()
 							.mergeMemberList(
@@ -58,6 +59,7 @@ public class MulticastServerThread extends Thread {
 							.println("Re-multicasting the earlier join/leave message requested");
 					new DatagramPacket(message.toBytes(),
 							Message.MAX_MESSAGE_LENGTH, groupAddress, port);
+					multicastServer.getServer().getLogger().info(message.getDescription());
 					socket.send(packet);
 				}
 			} catch (IOException e) {

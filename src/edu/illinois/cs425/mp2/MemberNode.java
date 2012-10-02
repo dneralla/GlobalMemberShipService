@@ -5,30 +5,28 @@ package edu.illinois.cs425.mp2;
  * All these properties are final. This also takes care
  * of managing sockets like opening, closing them.
  */
-import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Date;
 public class MemberNode {
+
 	private InetAddress hostAddress;
 	private int hostPort;
-	private DatagramSocket socket;
 	private Date timeStamp;
 
 	public Date getTimeStamp() {
 		return timeStamp;
 	}
+
 	public void setTimeStamp(Date timeStamp) {
 		this.timeStamp = timeStamp;
 	}
-	public DatagramSocket getSocket() {
-			return socket;
-	}
+
 	public MemberNode(InetAddress hostAddress, int hostPort)
 	{
 		this.hostAddress=hostAddress;
 		this.hostPort=hostPort;
+		this.timeStamp = new Date();
 	}
 
 	public InetAddress getHostAddress() {
@@ -45,30 +43,9 @@ public class MemberNode {
 		this.hostPort = hostPort;
 	}
 
-    private MemberNode(String hostName, int hostPort) {
-    	try {
-			this.hostAddress = InetAddress.getByName(hostName);
-			this.hostPort = hostPort;
-		} catch (UnknownHostException e) {
-			System.out.println("Error: Hostname unknown");
-			e.printStackTrace();
-		}
+    public MemberNode(String hostName, int hostPort) throws UnknownHostException {
+			this(InetAddress.getByName(hostName), hostPort);
 	}
-
-    /*
-     * Starts the sockets on all the ports. All initialization steps must
-     * go here.
-     */
-    public static MemberNode start(String hostName, int hostPort) throws SocketException {
-		MemberNode node = new MemberNode(hostName, hostPort);
-        node.socket = new DatagramSocket(hostPort);
-        //start multicast socket here
-        return node;
-	}
-
-    public void stopNode() {
-    	socket.close();
-    }
 
 	public boolean compareTo(MemberNode node) {
 		if (this.getHostAddress().equals(node.getHostAddress())
