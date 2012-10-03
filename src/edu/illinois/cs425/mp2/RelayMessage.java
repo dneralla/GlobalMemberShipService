@@ -1,11 +1,13 @@
 package edu.illinois.cs425.mp2;
 
-public class RelayMessage extends Message {
+public abstract class RelayMessage extends Message {
 
 	public RelayMessage(String messageType) {
 		super(messageType);
 		// TODO Auto-generated constructor stub
 	}
+
+	public abstract Message getNewMulticastMessage();
 
 	@Override
 	public void processMessage() {
@@ -14,7 +16,7 @@ public class RelayMessage extends Message {
 			public void run() {
 				try {
 
-					Message message = new RelayMessage("RELAYED_STRING");
+					Message message = getNewMulticastMessage();
 					message.setNode(ProcessorThread.getServer().getNode());
 					ProcessorThread.getMulticastServer().multicastUpdate(
 							message);

@@ -7,4 +7,10 @@ public class MulticastJoinMessage extends MulticastMessage {
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public RelayMessage getNewRelayMessage() {
+		// TODO Auto-generated method stub
+		return new RelayJoinMessage("RELAY_JOIN");
+	}
+
 }

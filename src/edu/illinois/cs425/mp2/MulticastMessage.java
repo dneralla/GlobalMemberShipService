@@ -1,7 +1,7 @@
 package edu.illinois.cs425.mp2;
 
 
-public class MulticastMessage extends Message {
+public abstract class MulticastMessage extends Message {
 
 	/**
 	 *
@@ -13,6 +13,8 @@ public class MulticastMessage extends Message {
 		// TODO Auto-generated constructor stub
 	}
 
+	public abstract RelayMessage getNewRelayMessage();
+
 	@Override
 	public void processMessage() {
 		new ServiceThread(this) {
@@ -20,7 +22,7 @@ public class MulticastMessage extends Message {
 			public void run() {
 				try {
 					if (mergeIntoMemberList()) {
-						Message message = new RelayMessage("RELAY");
+						Message message = getNewRelayMessage();
 						message.setNode(ProcessorThread.getServer().getNode());
 						message.setSourceNode(message.getNode());
 						ProcessorThread.getServer().sendMessage(message, ProcessorThread.getServer().getNeighborNode());

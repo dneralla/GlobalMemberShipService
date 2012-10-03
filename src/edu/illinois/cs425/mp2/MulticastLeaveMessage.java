@@ -9,4 +9,10 @@ public class MulticastLeaveMessage extends MulticastMessage {
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public RelayLeaveMessage getNewRelayMessage() {
+		// TODO Auto-generated method stub
+		return new RelayLeaveMessage("RELAY_LEAVE");
+	}
+
 }
