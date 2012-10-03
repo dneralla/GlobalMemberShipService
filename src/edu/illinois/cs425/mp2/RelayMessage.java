@@ -18,8 +18,7 @@ public abstract class RelayMessage extends Message {
 
 					Message message = getNewMulticastMessage();
 					message.setNode(ProcessorThread.getServer().getNode());
-					ProcessorThread.getMulticastServer().multicastUpdate(
-							message);
+					ProcessorThread.getServer().sendMessage(message, message.getSourceNode());
 
 				} catch (Exception e) {
 					e.printStackTrace();
