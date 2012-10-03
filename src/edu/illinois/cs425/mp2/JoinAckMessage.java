@@ -12,11 +12,16 @@ public class JoinAckMessage extends Message {
 		this.neighbourNode = neighbourNode;
 	}
 
+	public JoinAckMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
+		super(sourceNode, centralNode, alteredNode);
+	}
+
 	public JoinAckMessage(String messageType) {
 		super(messageType);
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
 	public void processMessage() {
 		new ServiceThread(this) {
 			@Override
@@ -28,11 +33,10 @@ public class JoinAckMessage extends Message {
 					System.out.println("heartbeat setting true");
 					ProcessorThread.getServer().setSendHeartBeat(true);
 					ProcessorThread.getMulticastServer().ensureRunning(getMessage().getMulticastGroup(), getMessage().getMulticastPort());
+					MemberNode self = ProcessorThread.getServer().getNode();
+					MulticastJoinMessage message = new MulticastJoinMessage(self,self,self);
 
-					MulticastJoinMessage message = new MulticastJoinMessage("MUTLICAST_JOIN");
-					message.setNode(ProcessorThread.getServer().getNode());
-					message.setSourceNode(ProcessorThread.getServer().getNode());
-			        ProcessorThread.getMulticastServer().multicastUpdate(message);
+					ProcessorThread.getMulticastServer().multicastUpdate(message);
 
 				} catch (Exception e) {
 					// TODO Auto-generated catch block

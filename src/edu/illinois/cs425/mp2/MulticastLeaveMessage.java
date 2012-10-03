@@ -10,9 +10,14 @@ public class MulticastLeaveMessage extends MulticastMessage {
 	}
 
 	@Override
-	public RelayLeaveMessage getNewRelayMessage() {
+	public RelayLeaveMessage getNewRelayMessage(MemberNode sourceNode, MemberNode centralNode,
+			MemberNode alteredNode) {
 		// TODO Auto-generated method stub
-		return new RelayLeaveMessage("RELAY_LEAVE");
+		return new RelayLeaveMessage(sourceNode, centralNode, alteredNode);
+	}
+
+	public MulticastLeaveMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
+		super(sourceNode, centralNode, alteredNode);
 	}
 
 }

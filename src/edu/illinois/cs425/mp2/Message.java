@@ -24,14 +24,28 @@ public abstract class Message implements Serializable {
 	private InetAddress originalHost;
 	private int originalPort;
 
-	private MemberNode node, sourceNode, predecessorNode;
+	private MemberNode sourceNode, centralNode, alteredNode;
 
-	public MemberNode getNode() {
-		return node;
+	public Message(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
+		this.sourceNode = sourceNode;
+		this.centralNode = centralNode;
+		this.alteredNode = alteredNode;
 	}
 
-	public void setNode(MemberNode node) {
-		this.node = node;
+	public MemberNode getCentralNode() {
+		return centralNode;
+	}
+
+	public void setCentralNode(MemberNode centralNode) {
+		this.centralNode = centralNode;
+	}
+
+	public MemberNode getAlteredNode() {
+		return alteredNode;
+	}
+
+	public void setAlteredNode(MemberNode alteredNode) {
+		this.alteredNode = alteredNode;
 	}
 
 	public MemberNode getSourceNode() {
@@ -135,13 +149,13 @@ public abstract class Message implements Serializable {
 		List<MemberNode> globalList = ProcessorThread.getServer()
 				.getGlobalList();
 		boolean isLatestUpdate = false, isNewEntry = true;
-		Date timeStamp = getNode().getTimeStamp();
+		Date timeStamp = getSourceNode().getTimeStamp();
 		for (MemberNode member : globalList) {
-			if (member.compareTo(getNode())) {
+			if (member.compareTo(getSourceNode())) {
 				isNewEntry = false;
 				if (timeStamp.after(member.getTimeStamp())) {
 					if (checkIsIntructionJoinVariant()) {
-						member.setTimeStamp(getNode().getTimeStamp());
+						member.setTimeStamp(getSourceNode().getTimeStamp());
 					} else if (checkIsIntructionJoinVariant()) {
 						globalList.remove(member);
 					}
@@ -151,8 +165,10 @@ public abstract class Message implements Serializable {
 		}
 		// missing out the case where join message appears after leave message
 		if (isNewEntry) {
-			globalList.add(getNode());
-			isLatestUpdate = true;
+            if(!getSourceNode().compareTo(ProcessorThread.getServer().getRecentLeftNode())) {
+				globalList.add(getSourceNode());
+				isLatestUpdate = true;
+            }
 		}
 		return isLatestUpdate;
 	}

@@ -7,7 +7,14 @@ public abstract class RelayMessage extends Message {
 		// TODO Auto-generated constructor stub
 	}
 
-	public abstract Message getNewMulticastMessage();
+	public RelayMessage(MemberNode sourceNode, MemberNode centralNode,
+			MemberNode alteredNode) {
+		// TODO Auto-generated constructor stub
+		super(sourceNode, centralNode, alteredNode);
+	}
+
+	public abstract Message getNewMulticastMessage(MemberNode sourceNode, MemberNode centralNode,
+			MemberNode alteredNode);
 
 	@Override
 	public void processMessage() {
@@ -15,11 +22,14 @@ public abstract class RelayMessage extends Message {
 			@Override
 			public void run() {
 				try {
-
-					Message message = getNewMulticastMessage();
-					message.setNode(ProcessorThread.getServer().getNode());
-					ProcessorThread.getServer().sendMessage(message, message.getSourceNode());
-
+					MemberNode self = ProcessorThread.getServer().getNode();
+						if(mergeIntoMemberList()) {
+							Message message = getNewMulticastMessage(self,
+									getMessage().getCentralNode(), getMessage()
+											.getAlteredNode());
+							ProcessorThread.getServer().sendMessage(message,
+									message.getSourceNode());
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

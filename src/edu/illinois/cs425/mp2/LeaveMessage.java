@@ -18,9 +18,9 @@ public class LeaveMessage extends Message {
 
 					ProcessorThread.getMulticastServer().ensureRunning(getMessage().getMulticastGroup(), getMessage().getMulticastPort());
 
-					MulticastLeaveMessage message = new MulticastLeaveMessage("MUTLICAST_LEAVE");
-					message.setNode(ProcessorThread.getServer().getNode());
-					message.setSourceNode(ProcessorThread.getServer().getNode());
+					MemberNode self = ProcessorThread.getServer().getNode();
+					// TODO: in case of failure detection, altered is faulty node
+					MulticastLeaveMessage message = new MulticastLeaveMessage(self, self, getMessage().getAlteredNode());
 			        ProcessorThread.getMulticastServer().multicastUpdate(message);
 
 				} catch (Exception e) {

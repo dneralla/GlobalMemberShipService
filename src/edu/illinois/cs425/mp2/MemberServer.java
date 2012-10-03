@@ -31,7 +31,16 @@ public class MemberServer {
 	private volatile List<MemberNode> globalList;
     private volatile Logger logger;
     private DatagramSocket socket;
+    private volatile MemberNode recentLeftNode;
 
+
+	public MemberNode getRecentLeftNode() {
+		return recentLeftNode;
+	}
+
+	public void setRecentLeftNode(MemberNode recentLeftNode) {
+		this.recentLeftNode = recentLeftNode;
+	}
 
 	public Logger getLogger() {
 		return logger;
@@ -62,6 +71,7 @@ public class MemberServer {
 		this.neighborNode = null;
 		this.globalList = new LinkedList<MemberNode>(Arrays.asList(node));
 		this.sendHeartBeat = false;
+		this.recentLeftNode = null;
 	}
 
 	public long getLastReceivedHeartBeatTime() {
