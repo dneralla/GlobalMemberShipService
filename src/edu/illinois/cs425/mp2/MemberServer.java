@@ -157,7 +157,7 @@ public class MemberServer {
 		// }
 		MemberServer server = null;
 		MulticastServer multicastServer = null;
-		FileHandler fileTxt = new FileHandler("Server.log");
+		FileHandler fileTxt = new FileHandler("Server"+args[0]+".log");
 		SimpleFormatter formatterTxt = new SimpleFormatter();
 		boolean listening = true;
 
@@ -189,8 +189,7 @@ public class MemberServer {
 		new ProcessorThread(server, multicastServer).start();
 
 		try {
-			DatagramSocket socket;
-			socket = new DatagramSocket();
+			
 			String inputLine;
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					System.in));
@@ -199,9 +198,10 @@ public class MemberServer {
 				if (inputLine.startsWith("join")) {
 					byte[] buf = new byte[256];
 					buf = new JoinMessage("JOIN").toBytes();
+					System.out.println("Join message sending");
 					// InetAddress address = InetAddress.getByName(args[0]);
 					DatagramPacket packet = new DatagramPacket(buf, buf.length,
-							InetAddress.getByName("localhost"), 5090);
+							InetAddress.getByName("localhost"), 5091);
 					server.getSocket().send(packet);
 				} else if (inputLine.startsWith("leave")) {
 

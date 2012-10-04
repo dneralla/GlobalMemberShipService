@@ -14,11 +14,14 @@ public class JoinMessage extends Message {
 
 	@Override
 	public void processMessage() {
+		System.out.println("Processign message");
 		new ServiceThread(this) {
+			
+			
 			@Override
 			public void run() {
 				try {
-					System.out.println("Servicing Join request");
+					ProcessorThread.getServer().getLogger().info("Servicing Join request");
 					// Pre condition: source node must be populated with the node joined/left/failed
 					((JoinMessage) getMessage()).mergeIntoMemberList();
 

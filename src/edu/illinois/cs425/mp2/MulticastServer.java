@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.UnknownHostException;
 
 public class MulticastServer {
 
@@ -12,7 +13,7 @@ public class MulticastServer {
 	private MemberServer server;
 	private MulticastSocket multicastSocket;
 	private InetAddress multicastGroup;
-
+	
 	public MemberServer getServer() {
 		return server;
 	}
@@ -23,6 +24,14 @@ public class MulticastServer {
 
 	public MulticastServer(MemberServer server) {
 		this.server = server;
+		try {
+			this.multicastGroup=InetAddress.getByName("224.4.5.6");
+			this.multicastPort=5200;
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	public int getMulticastPort() {
@@ -35,6 +44,13 @@ public class MulticastServer {
 
 	public MulticastServer() {
 		isRunning = false;
+		try {
+			this.multicastGroup=InetAddress.getByName("224.4.5.6");
+			this.multicastPort=5200;
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public MulticastSocket getMulticastSocket() {

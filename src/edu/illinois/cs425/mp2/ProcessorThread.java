@@ -51,6 +51,7 @@ public class ProcessorThread extends Thread {
 				in = new ObjectInputStream(bis);
 				message = (Message) in.readObject();
 				server.getLogger().info(message.getDescription());
+				 ProcessorThread.getServer().getLogger().info("receieved message");
 
 				if (message instanceof HeartBeatMessage) {
 					// System.out.println("heartbeat receieved");
@@ -59,7 +60,9 @@ public class ProcessorThread extends Thread {
 						ProcessorThread.toStartHeartBeating = true;
 					}
 					updateTimer();
-				} else {
+				} else { 
+					 System.out.println("processing message");
+					 ProcessorThread.getServer().getLogger().info("processing message");
 					message.processMessage();
 				}
 

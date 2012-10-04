@@ -1,21 +1,18 @@
 package edu.illinois.cs425.mp2;
 
-
-
-public class MulticastLeaveMessage extends MulticastMessage {
-
+public class MulticastFailureMessage extends MulticastMessage{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public MulticastLeaveMessage(String messageType) {
+	public MulticastFailureMessage(String messageType) {
 		super(messageType);
 		// TODO Auto-generated constructor stub
 	}
 	
-	@Override
-	public void processMessage() {
+	public void processMessage()
+	{
 		new ServiceThread(this) {
 			@Override
 			public void run() {
@@ -41,15 +38,18 @@ public class MulticastLeaveMessage extends MulticastMessage {
 		}.start();
 
 	}
+
 	@Override
-	public RelayLeaveMessage getNewRelayMessage(MemberNode sourceNode, MemberNode centralNode,
+	public RelayFailureMessage getNewRelayMessage(MemberNode sourceNode, MemberNode centralNode,
 			MemberNode alteredNode) {
 		// TODO Auto-generated method stub
-		return new RelayLeaveMessage(sourceNode, centralNode, alteredNode);
+		return new RelayFailureMessage(sourceNode, centralNode, alteredNode);
 	}
 
-	public MulticastLeaveMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
+	public MulticastFailureMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
 		super(sourceNode, centralNode, alteredNode);
 	}
-
+	
+	
+	
 }

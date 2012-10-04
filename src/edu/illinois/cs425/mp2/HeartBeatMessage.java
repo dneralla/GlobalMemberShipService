@@ -1,5 +1,7 @@
 package edu.illinois.cs425.mp2;
 
+import java.io.IOException;
+
 public class HeartBeatMessage extends Message {
 
 	/**
@@ -15,26 +17,19 @@ public class HeartBeatMessage extends Message {
 	@Override
 	public void processMessage() {
 		if (!ProcessorThread.toStartHeartBeating) {
-			startTimerThread();
+			startTimerThread(this);
 			ProcessorThread.toStartHeartBeating = true;
 		}
 		updateTimer();
 	}
 
 	public void updateTimer() {
-
-		/*
-		 * ProcessorThread.server.getLastReceivedHeartBeat().cancel();
-		 * ProcessorThread
-		 * .server.getLastReceivedHeartBeat().schedule(this.task,2*1000);
-		 * System.out.println("timertask");
-		 */
-		ProcessorThread.getServer().setLastReceivedHeartBeatTime(
+        ProcessorThread.getServer().setLastReceivedHeartBeatTime(
 				System.currentTimeMillis());
 	}
 
-	public void startTimerThread() {
-		new Thread() {
+	public void startTimerThread(Message message) {
+		new ServiceThread(message) {
 			@Override
 			public void run() {
 				while (true) {
@@ -43,7 +38,9 @@ public class HeartBeatMessage extends Message {
 									.getLastReceivedHeartBeatTime() > 5 * 1000) {
 
 						System.out.println("Detected");
-						processFailure();
+						
+						processFailure(getMessage().getSourceNode());
+						
 						ProcessorThread.toStartHeartBeating = false;
 						this.stop();
 					}
@@ -54,7 +51,20 @@ public class HeartBeatMessage extends Message {
 
 	}
 
-	public void processFailure() {
+	public void processFailure(MemberNode node) {
+		try {
+		System.out.println("Processing Failure message");
 
+		ProcessorThread.getMulticastServer().ensureRunning(ProcessorThread.getMulticastServer().getMulticastGroup(), ProcessorThread.getMulticastServer().getMulticastPort());
+
+		MemberNode self = ProcessorThread.getServer().getNode();
+		// TODO: in case of failure detection, altered is faulty node //Get sending nodel
+		MulticastFailureMessage message = new MulticastFailureMessage(self, self,node);
+        ProcessorThread.getMulticastServer().multicastUpdate(message);
+		}
+		catch(Exception e)
+		{
+			System.out.println("processing failure failed.");
+		}
 	}
 }

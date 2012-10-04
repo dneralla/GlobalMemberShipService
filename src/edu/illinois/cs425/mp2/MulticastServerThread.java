@@ -20,9 +20,9 @@ public class MulticastServerThread extends Thread {
 	public void run() {
 		DatagramPacket packet;
 		Message message;
-		InetAddress groupAddress = multicastServer.getMulticastGroup();
+		//InetAddress groupAddress = multicastServer.getMulticastGroup();
 		MulticastSocket socket = multicastServer.getMulticastSocket();
-		int port = multicastServer.getMulticastPort();
+		//int port = multicastServer.getMulticastPort();
 		boolean keepListening = true;
 		while (keepListening) {
 			byte receiveMessage[] = new byte[Message.MAX_MESSAGE_LENGTH];
@@ -36,6 +36,8 @@ public class MulticastServerThread extends Thread {
 				in = new ObjectInputStream(bis);
 				message = (Message) in.readObject();
 				multicastServer.getServer().getLogger().info(message.getDescription());
+				message.processMessage();
+				/*
 				if (message.getMessageType().startsWith("MULTICAST")) {
 					multicastServer.getServer()
 							.mergeMemberList(
@@ -61,7 +63,7 @@ public class MulticastServerThread extends Thread {
 							Message.MAX_MESSAGE_LENGTH, groupAddress, port);
 					multicastServer.getServer().getLogger().info(message.getDescription());
 					socket.send(packet);
-				}
+				}*/
 			} catch (IOException e) {
 
 			} catch (ClassNotFoundException e) {

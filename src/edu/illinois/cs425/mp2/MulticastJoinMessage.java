@@ -3,12 +3,36 @@ package edu.illinois.cs425.mp2;
 public class MulticastJoinMessage extends MulticastMessage {
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public MulticastJoinMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
 		super(sourceNode, centralNode, alteredNode);
 	}
 
+	public void processMessage()
+	{
+		new ServiceThread(this) {
+			@Override
+			public void run() {
+				try {
+					if (mergeIntoMemberList()) {
+						Message message = getNewRelayMessage(ProcessorThread.getServer().getNode(), getMessage().getSourceNode(), getMessage().getAlteredNode());
+						ProcessorThread.getServer().sendMessage(message, ProcessorThread.getServer().getNeighborNode());
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
+	}
+	
+	
 	public MulticastJoinMessage(String messageType) {
 		super(messageType);
+		
 		// TODO Auto-generated constructor stub
 	}
 

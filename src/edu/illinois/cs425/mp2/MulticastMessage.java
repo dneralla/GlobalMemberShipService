@@ -21,22 +21,6 @@ public abstract class MulticastMessage extends Message {
 	public abstract RelayMessage getNewRelayMessage(MemberNode sourceNode, MemberNode centralNode,
 			MemberNode alteredNode);
 
-	@Override
-	public void processMessage() {
-		new ServiceThread(this) {
-			@Override
-			public void run() {
-				try {
-					if (mergeIntoMemberList()) {
-						Message message = getNewRelayMessage(ProcessorThread.getServer().getNode(), getMessage().getSourceNode(), getMessage().getAlteredNode());
-						ProcessorThread.getServer().sendMessage(message, ProcessorThread.getServer().getNeighborNode());
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}.start();
-
-	}
+	
 
 }
