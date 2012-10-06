@@ -1,6 +1,5 @@
 package edu.illinois.cs425.mp2;
 
-
 public abstract class MulticastMessage extends Message {
 
 	/**
@@ -21,6 +20,6 @@ public abstract class MulticastMessage extends Message {
 	public abstract RelayMessage getNewRelayMessage(MemberNode sourceNode, MemberNode centralNode,
 			MemberNode alteredNode);
 
-	
+
 
 }

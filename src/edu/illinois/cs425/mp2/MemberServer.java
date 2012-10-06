@@ -161,11 +161,12 @@ public class MemberServer{
 		getSocket().send(packet);
     }
 
-	public static void main(String[] args) throws Exception { 
+	public static void main(String[] args) throws Exception {
 		MemberServer server = null;
 		MulticastServer multicastServer = null;
-		FileHandler fileTxt = new FileHandler("Server"+args[0]+".log");
+		FileHandler fileTxt = new FileHandler("Server" + args[0] + ".log");
 		SimpleFormatter formatterTxt = new SimpleFormatter();
+		MemberNode master  = new MemberNode("linux3.ews.illinois.edu", Integer.parseInt(args[0]));
 
 		// Create Logger
 		LogManager lm = LogManager.getLogManager();
@@ -173,42 +174,33 @@ public class MemberServer{
 		Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 		logger.setLevel(Level.INFO);
 
-
-
-
 		fileTxt.setFormatter(formatterTxt);
 		logger.addHandler(fileTxt);
-		
+
 		lm.addLogger(logger);
 
 		try {
-			server = MemberServer.start("192.168.1.60", Integer.parseInt(args[0]));
-			//server = MemberServer.start("localhost", Integer.parseInt(args[0]));
+			server = MemberServer.start(InetAddress.getLocalHost().getHostName(),
+					Integer.parseInt(args[0]));
 			multicastServer = new MulticastServer(server);
-			
+
 			server.setLogger(logger);
-
-		 
-
 
 		} catch (SocketException e) {
 
 			System.out.println("Error: Unable to open socket");
 			System.exit(-1);
-		   } catch (IOException e) {
+		} catch (IOException e) {
 			System.out.println("Could not	 listen on port.");
 			System.exit(-1);
-		  } catch (Exception e) {
+		} catch (Exception e) {
 			System.out.println("Byte Construction failed");
 			System.exit(-1);
 
-		   }
-		
-		
+		}
 
 		logger.info("Staring logging");
 		// starting heartbeat thread
-
 
 		new ProcessorThread(server, multicastServer).start();
 		new HeartBeatServiceThread().start();
@@ -218,28 +210,31 @@ public class MemberServer{
 					System.in));
 			System.out.print("[Please Enter Command]$ ");
 			while ((inputLine = in.readLine()) != null) {
-				if (inputLine.startsWith("join")) {
+				if (inputLine.equals("join")) {
 					byte[] buf = new byte[256];
-				    Message message = new JoinMessage(server.getNode(), null, null);
-					buf=message.toBytes();
+					Message message = new JoinMessage(server.getNode(), null,
+							null);
+					buf = message.toBytes();
 					System.out.println("Join message sending");
 
-				 
-					DatagramPacket packet = new DatagramPacket(buf, buf.length,InetAddress.getByName("192.168.1.33"), 5090);
-					server.getSocket().send(packet);
+					server.sendMessage(message, master);
+
 					System.out.println("Join message sent");
 
-				    server.getLogger().info("Join message Sent");
-			
-				} else if (inputLine.startsWith("leave")) {
-					
+					server.getLogger().info("Join message Sent");
+
+				} else if (inputLine.equals("leave")) {
+                    LeaveMessage leaveMessage = new LeaveMessage(server.getNode(), null, server.getNode());
+					server.sendMessage(leaveMessage, server.getNeighborNode());
 					server.getLogger().info("Leave Message sent");
 
 				} else if (inputLine.startsWith("print")) {
 					System.out.print("[");
-					for(MemberNode node: server.globalList)
-					System.out.print(node.getHostPort()+", ");
+					for (MemberNode node : server.globalList)
+						System.out.print(node.getHostPort() + ", ");
 					System.out.println("]");
+				} else if (inputLine.startsWith("set master")) {
+					master.setHostAddress(InetAddress.getByName(inputLine.substring(12)));
 				}
 				else if (inputLine.equals("help")) {
 					System.out
@@ -252,7 +247,7 @@ public class MemberServer{
 				System.out.print("[Please Enter Command]$ ");
 			}
 		} catch (IOException e) {
-			
+
 			e.printStackTrace();
 		}
 

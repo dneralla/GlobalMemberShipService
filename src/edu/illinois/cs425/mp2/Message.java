@@ -7,6 +7,11 @@ import java.net.InetAddress;
 import java.util.Date;
 import java.util.List;
 
+/*
+ * Generic class for handling all messages.
+ * Depending on the type(class) of message received,
+ * the corresponding processMesmethod is invoked.
+ */
 public abstract class Message implements Serializable {
 
 	/**
@@ -174,7 +179,7 @@ public abstract class Message implements Serializable {
 		}
 		return isLatestUpdate;
 	}
-	
+
 	public void mergeIntoMemberList(MemberNode node) {
 		List<MemberNode> globalList = ProcessorThread.getServer()
 				.getGlobalList();

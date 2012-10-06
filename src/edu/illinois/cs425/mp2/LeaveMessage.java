@@ -7,6 +7,9 @@ public class LeaveMessage extends Message {
 		// TODO Auto-generated constructor stub
 	}
 
+	public LeaveMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
+		super(sourceNode, centralNode, alteredNode);
+	}
 
 	@Override
 	public void processMessage() {
