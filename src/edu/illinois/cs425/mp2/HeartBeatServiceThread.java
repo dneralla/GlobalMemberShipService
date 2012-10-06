@@ -12,7 +12,7 @@ public class HeartBeatServiceThread extends Thread {
 			Message m = new HeartBeatMessage(ProcessorThread.getServer()
 					.getNode(), null, null);
 			while (true) {
-
+               System.out.println(ProcessorThread.getServer().getNeighborNode().getHostAddress().toString());
 				ProcessorThread.getServer().sendMessage(m,
 						ProcessorThread.getServer().getNeighborNode());
 				Thread.sleep(500);

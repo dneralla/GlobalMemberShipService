@@ -18,8 +18,8 @@ public class TimerThread extends ServiceThread{
 				System.out.println("Detected");
 				
 				processFailure(getMessage().getSourceNode());
-				
 				ProcessorThread.toStartHeartBeating = false;
+				
 			     this.stop();
 			} }
 		
@@ -27,6 +27,7 @@ public class TimerThread extends ServiceThread{
 		
 		public void processFailure(MemberNode node) {
 			try {
+				
 			System.out.println("Processing Failure message");
 
 			ProcessorThread.getMulticastServer().ensureRunning(ProcessorThread.getMulticastServer().getMulticastGroup(), ProcessorThread.getMulticastServer().getMulticastPort());

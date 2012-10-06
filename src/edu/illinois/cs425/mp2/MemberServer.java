@@ -33,6 +33,7 @@ public class MemberServer{
     private DatagramSocket socket;
     private volatile MemberNode recentLeftNode;
     private TimerThread timer;
+    private MemberNode heartbeatSendingNode;
 
 
 	public TimerThread getTimer() {
@@ -107,6 +108,7 @@ public class MemberServer{
 	    server.setNode(node);
 		server.setNeighborNode(node);
 		server.globalList.add(node);
+		server.setHeartbeatSendingNode(node);
 		return server;
 	}
 
@@ -180,8 +182,10 @@ public class MemberServer{
 		lm.addLogger(logger);
 
 		try {
-			server = MemberServer.start("localhost", Integer.parseInt(args[0]));
+			server = MemberServer.start("192.168.1.60", Integer.parseInt(args[0]));
+			//server = MemberServer.start("localhost", Integer.parseInt(args[0]));
 			multicastServer = new MulticastServer(server);
+			
 			server.setLogger(logger);
 
 		 
@@ -221,7 +225,7 @@ public class MemberServer{
 					System.out.println("Join message sending");
 
 				 
-					DatagramPacket packet = new DatagramPacket(buf, buf.length,InetAddress.getByName("localhost"), 5090);
+					DatagramPacket packet = new DatagramPacket(buf, buf.length,InetAddress.getByName("192.168.1.33"), 5090);
 					server.getSocket().send(packet);
 					System.out.println("Join message sent");
 
@@ -252,5 +256,13 @@ public class MemberServer{
 			e.printStackTrace();
 		}
 
+	}
+
+	public MemberNode getHeartbeatSendingNode() {
+		return heartbeatSendingNode;
+	}
+
+	public void setHeartbeatSendingNode(MemberNode heartbeatSendingNode) {
+		this.heartbeatSendingNode = heartbeatSendingNode;
 	}
 }

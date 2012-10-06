@@ -5,11 +5,14 @@ import java.io.IOException;
 public class HeartBeatMessage extends Message {
 
 	
+    
+	
 	private static final long serialVersionUID = 1L;
+	
+   
 	public HeartBeatMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
 		super(sourceNode, centralNode, alteredNode);
-		
-	}
+	  }
 
 	public HeartBeatMessage(String messageType) {
 		super(messageType);
@@ -18,8 +21,11 @@ public class HeartBeatMessage extends Message {
 
 	@Override
 	public void processMessage() {
+	    
+	    System.out.println(this.getSourceNode().getHostPort());
 		if (!ProcessorThread.toStartHeartBeating) {
 			ProcessorThread.getServer().setTimer(new TimerThread(this));
+			System.out.println("starting");
 			ProcessorThread.getServer().getTimer().start();
 		    ProcessorThread.toStartHeartBeating = true;
 		}
