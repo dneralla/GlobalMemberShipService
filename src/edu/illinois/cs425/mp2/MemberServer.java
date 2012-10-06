@@ -183,6 +183,7 @@ public class MemberServer{
 			server = MemberServer.start("localhost", Integer.parseInt(args[0]));
 			multicastServer = new MulticastServer(server);
 			server.setLogger(logger);
+			
 		} catch (SocketException e) {
 			System.out.println("Error: Unable to open socket");
 			System.exit(-1);
