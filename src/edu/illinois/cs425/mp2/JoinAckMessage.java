@@ -49,8 +49,8 @@ public class JoinAckMessage extends Message {
                     ProcessorThread.getServer().setGlobalList(getGlobalList());
 
 					System.out.println("heartbeat setting true");
-					//ProcessorThread.getServer().setSendHeartBeat(true);
-					ProcessorThread.getMulticastServer().ensureRunning(getMessage().getMulticastGroup(), getMessage().getMulticastPort());
+					//ensures that the multicast server is running
+					ProcessorThread.getMulticastServer().ensureRunning();
 					MemberNode self = ProcessorThread.getServer().getNode();
 					MulticastJoinMessage message = new MulticastJoinMessage(self,self,self);
 

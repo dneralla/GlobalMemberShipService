@@ -30,8 +30,6 @@ public class TimerThread extends ServiceThread{
 				
 			System.out.println("Processing Failure message");
 
-			ProcessorThread.getMulticastServer().ensureRunning(ProcessorThread.getMulticastServer().getMulticastGroup(), ProcessorThread.getMulticastServer().getMulticastPort());
-
 			MemberNode self = ProcessorThread.getServer().getNode();
 			// TODO: in case of failure detection, altered is faulty node //Get sending nodel
 			MulticastFailureMessage message = new MulticastFailureMessage(self, self,node);

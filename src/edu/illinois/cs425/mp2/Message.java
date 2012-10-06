@@ -142,9 +142,9 @@ public abstract class Message implements Serializable {
 	}
 
 	public String getDescription() {
-		// TODO Auto-generated method stub
-		return getMessageType() + " ";
-		//return null;
+		return "Source Node : " + getSourceNode().getHostPort() +
+			   "Central Node: " + getCentralNode().getHostPort() +
+			   "Altered Node: " + getAlteredNode().getHostPort();
 	}
 
 	public boolean checkIsIntructionJoinVariant() {

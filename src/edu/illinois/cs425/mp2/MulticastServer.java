@@ -8,11 +8,33 @@ import java.net.UnknownHostException;
 
 public class MulticastServer {
 
+    private static final String MULTICAST_GROUP = "230.0.0.1";
 	private boolean isRunning;
-	public int multicastPort;
+	public int multicastServerPort;
 	private MemberServer server;
-	private MulticastSocket multicastSocket;
+	private MulticastSocket multicastListenerSocket;
+	private MulticastSocket multicastServerSocket;
 	private InetAddress multicastGroup;
+	
+	public int getMulticastServerPort() {
+		return multicastServerPort;
+	}
+	
+	public MulticastSocket getMulticastListenerSocket() {
+		return multicastListenerSocket;
+	}
+
+	public void setMulticastListenerSocket(MulticastSocket multicastListenerSocket) {
+		this.multicastListenerSocket = multicastListenerSocket;
+	}
+
+	public MulticastSocket getMulticastServerSocket() {
+		return multicastServerSocket;
+	}
+
+	public void setMulticastServerSocket(MulticastSocket multicastServerSocket) {
+		this.multicastServerSocket = multicastServerSocket;
+	}
 
 	public MemberServer getServer() {
 		return server;
@@ -22,11 +44,11 @@ public class MulticastServer {
 		this.server = server;
 	}
 
-	public MulticastServer(MemberServer server) {
+	public MulticastServer(MemberServer server, int port) {
 		this.server = server;
 		try {
-			this.multicastGroup = InetAddress.getByName("224.4.5.6");
-			this.multicastPort = 5200;
+			this.multicastGroup = InetAddress.getByName(MULTICAST_GROUP);
+			this.multicastServerPort = port;
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -34,27 +56,8 @@ public class MulticastServer {
 
 	}
 
-	public int getMulticastPort() {
-		return multicastPort;
-	}
-
-	public void setMulticastPort(int multicastPort) {
-		this.multicastPort = multicastPort;
-	}
-
-	public MulticastServer() {
-		isRunning = false;
-		try {
-			this.multicastGroup=InetAddress.getByName("224.4.5.6");
-			this.multicastPort=5200;
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public MulticastSocket getMulticastSocket() {
-		return multicastSocket;
+	public void setMulticastPort(int multicastServerPort) {
+		this.multicastServerPort = multicastServerPort;
 	}
 
 	public InetAddress getMulticastGroup() {
@@ -69,29 +72,33 @@ public class MulticastServer {
 		}
 	}
 
-	public synchronized void ensureRunning(InetAddress multicastGroup,
-			int multicastPort) throws IOException {
+	public synchronized void ensureRunning() throws IOException {
 		if (!isRunning) {
-			this.multicastGroup = multicastGroup;
-			this.multicastPort = multicastPort;
-			this.multicastSocket = new MulticastSocket(multicastPort);
+			try {
+			this.multicastServerSocket = new MulticastSocket(multicastServerPort);
+			this.multicastListenerSocket = new MulticastSocket();
+			this.multicastListenerSocket.joinGroup(multicastGroup);
 			start();
 			isRunning = true;
+			} catch(IOException e)  {
+				e.printStackTrace();
+			}
 		}
 	}
 
-	public synchronized void stop() {
-		multicastSocket.close();
+	public synchronized void stop() throws IOException {
+		multicastListenerSocket.leaveGroup(multicastGroup);
+		multicastListenerSocket.close();
+		multicastServerSocket.close();
 		isRunning = false;
 	}
 
 	void multicastUpdate(Message multicastMessage) throws Exception, IOException {
-		System.out.println("Sending multicast update");
+		System.out.println("Sending multicast update" + multicastMessage.getDescription());
+		ProcessorThread.getServer().getLogger().info("Sending multicast update "+ multicastMessage.getDescription());
 	    byte[] bytes = multicastMessage.toBytes();
 		DatagramPacket packet =
-				new DatagramPacket(bytes, bytes.length, getMulticastGroup(), getMulticastPort());
-
-		ProcessorThread.getServer().getLogger().info(multicastMessage.getDescription());
-		getMulticastSocket().send(packet);
+				new DatagramPacket(bytes, bytes.length, getMulticastGroup(), getMulticastListenerSocket().getPort());
+		getMulticastServerSocket().send(packet);
 	}
 }

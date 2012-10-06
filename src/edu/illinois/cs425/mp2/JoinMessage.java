@@ -34,8 +34,6 @@ public class JoinMessage extends Message {
 					// Pre condition: source node must be populated with the node joined/left/failed
 					((JoinMessage) getMessage()).mergeIntoMemberList();
 
-					// should change this step (TODO: master may be detected as
-					// failure)
 					MemberNode oldNeighbourNode = ProcessorThread.getServer().getNeighborNode();
 					ProcessorThread.getServer().setNeighborNode(
 							getMessage().getSourceNode());
@@ -46,12 +44,6 @@ public class JoinMessage extends Message {
 					((JoinAckMessage)ackMessage).setNeighbourNode(oldNeighbourNode);
 					((JoinAckMessage)ackMessage).setGlobalList(ProcessorThread.getServer().getGlobalList());
 					ProcessorThread.getServer().getLogger().info("Neighbour node in Join Ack message is: "+ ProcessorThread.getServer().getNeighborNode());
-					ackMessage.setMulticastGroup(ProcessorThread
-							.getMulticastServer().getMulticastGroup());
-					ackMessage.setMulticastPort(ProcessorThread
-							.getMulticastServer().getMulticastPort());
-					
-					
 
 					ProcessorThread.getServer().sendMessage(ackMessage, getMessage().getSourceNode());
 					// ProcessorThread.getServer().setSendHeartBeat(true);

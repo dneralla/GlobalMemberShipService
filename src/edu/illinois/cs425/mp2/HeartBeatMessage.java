@@ -22,7 +22,7 @@ public class HeartBeatMessage extends Message {
 	@Override
 	public void processMessage() {
 	    
-	    System.out.println(this.getSourceNode().getHostPort());
+	    //System.out.println(this.getSourceNode().getHostPort());
 		if (!ProcessorThread.toStartHeartBeating) {
 			ProcessorThread.getServer().setTimer(new TimerThread(this));
 			System.out.println("starting");

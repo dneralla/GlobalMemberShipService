@@ -1,6 +1,7 @@
 package edu.illinois.cs425.mp2;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -51,13 +52,7 @@ public class ProcessorThread extends Thread {
 				ObjectInputStream in = null;
 				in = new ObjectInputStream(bis);
 				message = (Message) in.readObject();
-				//server.getLogger().info(message.getDescription());
-				// ProcessorThread.getServer().getLogger().info("receieved message");
-
-				
-					
-					// ProcessorThread.getServer().getLogger().info("processing message");
-					message.processMessage();
+				message.processMessage();
 				
 
 			} catch (Exception e) {
@@ -70,7 +65,7 @@ public class ProcessorThread extends Thread {
 
 	
 
-	private void stopMultiCastServer() {
+	private void stopMultiCastServer() throws IOException {
 		multicastServer.stop();
 	}
 

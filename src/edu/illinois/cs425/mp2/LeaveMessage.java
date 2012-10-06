@@ -19,7 +19,7 @@ public class LeaveMessage extends Message {
 				try {
 					System.out.println("Processing Leave message");
 
-					ProcessorThread.getMulticastServer().ensureRunning(getMessage().getMulticastGroup(), getMessage().getMulticastPort());
+					ProcessorThread.getMulticastServer().ensureRunning();
 
 					MemberNode self = ProcessorThread.getServer().getNode();
 					// TODO: in case of failure detection, altered is faulty node

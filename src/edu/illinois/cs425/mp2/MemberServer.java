@@ -27,7 +27,6 @@ public class MemberServer{
 	private MemberNode node;
 	private volatile MemberNode neighborNode;
 	private volatile long lastReceivedHeartBeatTime;
-	private volatile boolean sendHeartBeat = true;
 	private volatile List<MemberNode> globalList;
     private volatile Logger logger;
     private DatagramSocket socket;
@@ -79,8 +78,8 @@ public class MemberServer{
 	private MemberServer() {
 		// initially doesn't have any neighbors
 		this.neighborNode = null;
-		this.sendHeartBeat = false;
 		this.recentLeftNode = null;
+		this.heartbeatSendingNode = null;
 		this.globalList = new ArrayList<MemberNode>();
 	}
 
@@ -90,14 +89,6 @@ public class MemberServer{
 
 	public void setLastReceivedHeartBeatTime(long lastReceivedHeartBeat) {
 		this.lastReceivedHeartBeatTime = lastReceivedHeartBeat;
-	}
-
-	public boolean getSendHeartBeat() {
-		return sendHeartBeat;
-	}
-
-	public void setSendHeartBeat(boolean sendHeartBeat) {
-		this.sendHeartBeat = sendHeartBeat;
 	}
 
 	public static MemberServer start(String hostName, int hostPort)
@@ -129,30 +120,6 @@ public class MemberServer{
 		return socket;
 	}
 
-	public synchronized boolean mergeMemberList(MemberNode node, String messageType) {
-
-		boolean isLatestUpdate = false, isNewEntry = true;
-		for (MemberNode member : globalList) {
-			if (member.compareTo(node)) {
-				isNewEntry = false;
-				if (node.getTimeStamp().after(member.getTimeStamp())) {
-					if (messageType.equals("JOIN")) {
-						member.setTimeStamp(node.getTimeStamp());
-					} else {
-						globalList.remove(member);
-						break;
-					}
-					isLatestUpdate = true;
-				}
-			}
-		}
-		if (isNewEntry && messageType.equals("JOIN")) {
-			globalList.add(node);
-			isLatestUpdate = true;
-		}
-		return isLatestUpdate;
-	}
-
     public void sendMessage(Message message, MemberNode receiver) throws Exception {
         //System.out.println("Sending message " + message);
     	//getLogger().info(message.getDescription());
@@ -164,9 +131,10 @@ public class MemberServer{
 	public static void main(String[] args) throws Exception {
 		MemberServer server = null;
 		MulticastServer multicastServer = null;
-		FileHandler fileTxt = new FileHandler("Server" + args[0] + ".log");
+		FileHandler fileTxt = new FileHandler("Server_" + InetAddress.getLocalHost().getHostName() + "_" + args[0] + ".log");
 		SimpleFormatter formatterTxt = new SimpleFormatter();
-		MemberNode master  = new MemberNode("linux3.ews.illinois.edu", Integer.parseInt(args[0]));
+		//Assumption: Master server starts on 5090 port
+		MemberNode master  = new MemberNode("linux5.ews.illinois.edu", 5095);
 
 		// Create Logger
 		LogManager lm = LogManager.getLogManager();
@@ -179,11 +147,13 @@ public class MemberServer{
 
 		lm.addLogger(logger);
 
+		
 		try {
+			
 			server = MemberServer.start(InetAddress.getLocalHost().getHostName(),
 					Integer.parseInt(args[0]));
-			multicastServer = new MulticastServer(server);
-
+			
+			multicastServer = new MulticastServer(server,Integer.parseInt(args[1]));
 			server.setLogger(logger);
 
 		} catch (SocketException e) {
@@ -211,10 +181,8 @@ public class MemberServer{
 			System.out.print("[Please Enter Command]$ ");
 			while ((inputLine = in.readLine()) != null) {
 				if (inputLine.equals("join")) {
-					byte[] buf = new byte[256];
 					Message message = new JoinMessage(server.getNode(), null,
 							null);
-					buf = message.toBytes();
 					System.out.println("Join message sending");
 
 					server.sendMessage(message, master);
@@ -233,10 +201,14 @@ public class MemberServer{
 					for (MemberNode node : server.globalList)
 						System.out.print(node.getHostPort() + ", ");
 					System.out.println("]");
-				} else if (inputLine.startsWith("set master")) {
-					master.setHostAddress(InetAddress.getByName(inputLine.substring(12)));
 				}
-				else if (inputLine.equals("help")) {
+			 else if (inputLine.equals("next")) {
+				System.out
+						.println("Neighbour Port: " + server.getNeighborNode().getHostPort());
+			}
+				else if (inputLine.startsWith("set master")) {
+					master.setHostAddress(InetAddress.getByName(inputLine.substring(12)));
+				} else if (inputLine.equals("help")) {
 					System.out
 							.println("Usage: [join|leave] <hostname:hostport>");
 				} else if (inputLine.equals("exit")) {
