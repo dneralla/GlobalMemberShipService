@@ -18,8 +18,8 @@ public class TimerThread extends ServiceThread{
 					- ProcessorThread.getServer()
 							.getLastReceivedHeartBeatTime() > 5 * 1000) {
 
-				System.out.println("Detected");
-
+				System.out.println("failure Detected of node"+ProcessorThread.getServer().getHeartbeatSendingNode().getHostAddress());
+				ProcessorThread.getServer().getLogger().info("failure Detected of node"+ProcessorThread.getServer().getHeartbeatSendingNode().getHostAddress());
 				processFailure(ProcessorThread.getServer().getHeartbeatSendingNode());
 				ProcessorThread.toStartHeartBeating = false;
 
@@ -31,7 +31,7 @@ public class TimerThread extends ServiceThread{
 		public void processFailure(MemberNode node) {
 			try {
 
-			System.out.println("Processing Failure message");
+
 
 			ProcessorThread.getMulticastServer().ensureRunning(ProcessorThread.getMulticastServer().getMulticastGroup(), ProcessorThread.getMulticastServer().getMulticastPort());
 
@@ -42,7 +42,8 @@ public class TimerThread extends ServiceThread{
 			}
 			catch(Exception e)
 			{
-				System.out.println("processing failure failed.");
+				System.out.println("processing failure failed of node"+node.getHostAddress());
+				ProcessorThread.getServer().getLogger().info("processing failure failed of node"+node.getHostAddress());
 			}
 		}
 

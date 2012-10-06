@@ -15,16 +15,17 @@ public class HeartBeatMessage extends Message {
 
 	public HeartBeatMessage(String messageType) {
 		super(messageType);
-		// TODO Auto-generated constructor stub
-	}
+		}
 
 	@Override
 	public void processMessage() {
 
-	    System.out.println(this.getSourceNode().getHostPort());
+	    //System.out.println(this.getSourceNode().getHostPort());
+
+	    ProcessorThread.getServer().getLogger().info("HeratBeatReceieved from host"+this.getSourceNode().getHostAddress().toString());
 		if (!ProcessorThread.toStartHeartBeating) {
 			ProcessorThread.getServer().setTimer(new TimerThread());
-			System.out.println("starting");
+
 			ProcessorThread.getServer().getTimer().start();
 		    ProcessorThread.toStartHeartBeating = true;
 		}

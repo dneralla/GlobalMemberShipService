@@ -156,7 +156,6 @@ public abstract class Message implements Serializable {
 				.getGlobalList();
 		boolean isLatestUpdate = false, isNewEntry = true;
 		Date timeStamp = getSourceNode().getTimeStamp();
-		System.out.println("Global List::" +globalList);
 		for (MemberNode member : globalList) {
 			if (member.compareTo(getSourceNode())) {
 				isNewEntry = false;

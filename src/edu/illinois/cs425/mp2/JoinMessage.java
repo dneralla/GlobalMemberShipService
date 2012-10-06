@@ -28,7 +28,7 @@ public class JoinMessage extends Message {
 			@Override
 			public void run() {
 				try {
-					ProcessorThread.getServer().getLogger().info("Servicing Join request");
+					ProcessorThread.getServer().getLogger().info("Servicing Join request of node"+getMessage().getSourceNode().getHostAddress());
 					// Pre condition: source node must be populated with the node joined/left/failed
 					((JoinMessage) getMessage()).mergeIntoMemberList();
 
@@ -58,8 +58,9 @@ public class JoinMessage extends Message {
 					// new node
 
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+
+					ProcessorThread.getServer().getLogger().info("Processing join failed of node"+getMessage().getSourceNode().getHostAddress());
+                    System.out.println("Processing join failed");
 				}
 			}
 		}.start();

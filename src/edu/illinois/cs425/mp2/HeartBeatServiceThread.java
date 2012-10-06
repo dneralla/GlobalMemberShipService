@@ -13,13 +13,15 @@ public class HeartBeatServiceThread extends Thread {
 					.getNode(), null, null);
 			while (true) {
                System.out.println(ProcessorThread.getServer().getNeighborNode().getHostAddress().toString());
-				ProcessorThread.getServer().sendMessage(m,
+			   ProcessorThread.getServer().getLogger().info("HeartBeat Sending to"+ProcessorThread.getServer().getNeighborNode().getHostAddress().toString());
+               ProcessorThread.getServer().sendMessage(m,
 						ProcessorThread.getServer().getNeighborNode());
 				Thread.sleep(500);
 			}
 		} catch (Exception e) {
+
 			System.out.println("Error in sending hearbeat message");
-			e.printStackTrace();
+		    ProcessorThread.getServer().getLogger().info("Error in sending heart beat message to"+ProcessorThread.getServer().getNeighborNode().getHostAddress());
 		}
 	}
 }

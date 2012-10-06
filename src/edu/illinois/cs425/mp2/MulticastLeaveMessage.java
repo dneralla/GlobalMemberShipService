@@ -5,7 +5,7 @@ package edu.illinois.cs425.mp2;
 public class MulticastLeaveMessage extends MulticastMessage {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -13,17 +13,17 @@ public class MulticastLeaveMessage extends MulticastMessage {
 		super(messageType);
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	@Override
 	public void processMessage() {
 		new ServiceThread(this) {
 			@Override
 			public void run() {
 				try {
-					
-						
-						
-						
+
+
+					ProcessorThread.getServer().getLogger().info("Multicast leave message Processing  of node"+getMessage().getAlteredNode().getHostAddress());
+
 					if (mergeIntoMemberList()) {
 						Message message = getNewRelayMessage(ProcessorThread.getServer().getNode(), getMessage().getSourceNode(), getMessage().getAlteredNode());
 						ProcessorThread.getServer().sendMessage(message, ProcessorThread.getServer().getNeighborNode());
@@ -31,10 +31,11 @@ public class MulticastLeaveMessage extends MulticastMessage {
 						{
 							ProcessorThread.getServer().setNeighborNode(getMessage().getAlteredNode());
 						}
-					
+
 					}
-					
+
 				} catch (Exception e) {
+					ProcessorThread.getServer().getLogger().info("Multicast leave message  Processing failed of node"+getMessage().getAlteredNode().getHostAddress());
 					e.printStackTrace();
 				}
 			}

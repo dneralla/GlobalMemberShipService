@@ -215,12 +215,8 @@ public class MemberServer{
 					Message message = new JoinMessage(server.getNode(), null,
 							null);
 					buf = message.toBytes();
-					System.out.println("Join message sending");
-
+					server.getLogger().info("Join message sending to"+master.getHostAddress());
 					server.sendMessage(message, master);
-
-					System.out.println("Join message sent");
-
 					server.getLogger().info("Join message Sent");
 
 				} else if (inputLine.equals("leave")) {
@@ -229,10 +225,12 @@ public class MemberServer{
 					server.getLogger().info("Leave Message sent");
 
 				} else if (inputLine.startsWith("print")) {
-					System.out.print("[");
+					String s="[";
 					for (MemberNode node : server.globalList)
-						System.out.print(node.getHostPort() + ", ");
-					System.out.println("]");
+						 s = s+node.getHostAddress().toString()+":"+node.getHostPort() + ",";
+					     s=s+"]";
+					System.out.println(s);
+					server.getLogger().info("Printing list at node to log"+s);
 				} else if (inputLine.startsWith("set master")) {
 					master.setHostAddress(InetAddress.getByName(inputLine.substring(12)));
 				}

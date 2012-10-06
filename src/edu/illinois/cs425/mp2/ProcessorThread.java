@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.util.TimerTask;
 
 public class ProcessorThread extends Thread {
 	private static MemberServer server;
@@ -22,7 +21,7 @@ public class ProcessorThread extends Thread {
 		ProcessorThread.multicastServer = multicastServer;
 	}
 
-	
+
 	static boolean toStartHeartBeating = false;
 
 	public ProcessorThread(MemberServer server, MulticastServer multicastServer) {
@@ -36,7 +35,7 @@ public class ProcessorThread extends Thread {
 		Message message;
 		InetAddress senderAddress;
 		int port;
-		
+
 		while (true) {
 			byte receiveMessage[] = new byte[Message.MAX_MESSAGE_LENGTH];
 
@@ -51,14 +50,8 @@ public class ProcessorThread extends Thread {
 				ObjectInputStream in = null;
 				in = new ObjectInputStream(bis);
 				message = (Message) in.readObject();
-				//server.getLogger().info(message.getDescription());
-				// ProcessorThread.getServer().getLogger().info("receieved message");
+				message.processMessage();
 
-				
-					
-					// ProcessorThread.getServer().getLogger().info("processing message");
-					message.processMessage();
-				
 
 			} catch (Exception e) {
 
@@ -68,16 +61,16 @@ public class ProcessorThread extends Thread {
 
 	}
 
-	
+
 
 	private void stopMultiCastServer() {
 		multicastServer.stop();
 	}
 
-	
 
-	
 
-	
+
+
+
 
 }

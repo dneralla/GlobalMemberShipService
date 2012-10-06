@@ -15,17 +15,20 @@ public class MulticastJoinMessage extends MulticastMessage {
 	@Override
 	public void processMessage()
 	{
-		System.out.println("Processing multicast join message");
+
 		new ServiceThread(this) {
+
 			@Override
 			public void run() {
 				try {
+					ProcessorThread.getServer().getLogger().info("Multicast join message Processing of node"+getMessage().getAlteredNode().getHostAddress());
 					if (mergeIntoMemberList()) {
 						Message message = getNewRelayMessage(ProcessorThread.getServer().getNode(), getMessage().getSourceNode(), getMessage().getAlteredNode());
 						ProcessorThread.getServer().sendMessage(message, ProcessorThread.getServer().getNeighborNode());
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
+					ProcessorThread.getServer().getLogger().info("Multicast Join Message processing failed  of node"+getMessage().getAlteredNode().getHostAddress());
 				}
 			}
 		}.start();
@@ -41,6 +44,7 @@ public class MulticastJoinMessage extends MulticastMessage {
 	@Override
 	public RelayMessage getNewRelayMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
 		// TODO Auto-generated method stub
+
 		RelayJoinMessage message = new RelayJoinMessage(sourceNode, centralNode, alteredNode);
 		return message;
 	}

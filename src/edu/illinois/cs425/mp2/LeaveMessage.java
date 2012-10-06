@@ -17,7 +17,7 @@ public class LeaveMessage extends Message {
 			@Override
 			public void run() {
 				try {
-					System.out.println("Processing Leave message");
+					ProcessorThread.getServer().getLogger().info("Processing Leave message"+getMessage().getAlteredNode().getHostAddress());
 
 					ProcessorThread.getMulticastServer().ensureRunning(getMessage().getMulticastGroup(), getMessage().getMulticastPort());
 
@@ -28,6 +28,7 @@ public class LeaveMessage extends Message {
 
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
+					ProcessorThread.getServer().getLogger().info("Leave Message processing failed or multicast update failed of node"+getMessage().getAlteredNode().getHostAddress());
 					e.printStackTrace();
 				}
 			}

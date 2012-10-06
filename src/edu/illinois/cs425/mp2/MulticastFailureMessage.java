@@ -2,7 +2,7 @@ package edu.illinois.cs425.mp2;
 
 public class MulticastFailureMessage extends MulticastMessage{
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -10,17 +10,18 @@ public class MulticastFailureMessage extends MulticastMessage{
 		super(messageType);
 		// TODO Auto-generated constructor stub
 	}
-	
+
+	@Override
 	public void processMessage()
 	{
 		new ServiceThread(this) {
 			@Override
 			public void run() {
 				try {
-					
-						
-						
-						
+
+
+
+
 					if (mergeIntoMemberList()) {
 						Message message = getNewRelayMessage(ProcessorThread.getServer().getNode(), getMessage().getSourceNode(), getMessage().getAlteredNode());
 						ProcessorThread.getServer().sendMessage(message, ProcessorThread.getServer().getNeighborNode());
@@ -28,11 +29,12 @@ public class MulticastFailureMessage extends MulticastMessage{
 						{
 							ProcessorThread.getServer().setNeighborNode(getMessage().getAlteredNode());
 						}
-					
+
 					}
-					
+
 				} catch (Exception e) {
-					e.printStackTrace();
+					ProcessorThread.getServer().getLogger().info("Multicast failure receieve  Processing failed of node"+getMessage().getAlteredNode().getHostAddress());
+					System.out.println("Multicast failure receieve  Processing failed of node"+getMessage().getAlteredNode().getHostAddress());
 				}
 			}
 		}.start();
@@ -42,14 +44,14 @@ public class MulticastFailureMessage extends MulticastMessage{
 	@Override
 	public RelayFailureMessage getNewRelayMessage(MemberNode sourceNode, MemberNode centralNode,
 			MemberNode alteredNode) {
-		// TODO Auto-generated method stub
+
 		return new RelayFailureMessage(sourceNode, centralNode, alteredNode);
 	}
 
 	public MulticastFailureMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
 		super(sourceNode, centralNode, alteredNode);
 	}
-	
-	
-	
+
+
+
 }

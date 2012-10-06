@@ -39,17 +39,17 @@ public class JoinAckMessage extends Message {
 			@Override
 			public void run() {
 				try {
-					System.out.println("Join Acknowledging");
+					//System.out.println("Join Acknowledging");
+					ProcessorThread.getServer().getLogger().info("Join Acknowledging and updating neighbor as "+((JoinAckMessage)getMessage()).getNeighbourNode().getHostAddress());
 					ProcessorThread.getServer().setNeighborNode(((JoinAckMessage)getMessage()).getNeighbourNode());
-				      System.out.println("In request"+((JoinAckMessage)getMessage()).getNeighbourNode().getHostPort());
-					System.out.println("Join ack neighbor"+ ProcessorThread.getServer().getNeighborNode().getHostPort());
+				    //System.out.println("In request"+((JoinAckMessage)getMessage()).getNeighbourNode().getHostPort());
+					//System.out.println("Join ack neighbor"+ ProcessorThread.getServer().getNeighborNode().getHostPort());
 					//ProcessorThread.toStartHeartBeating=false;
 					//ProcessorThread.getServer().getTimer().stop();
 					ProcessorThread.getServer().getLogger().info("Neighbour node in Join Ack message is: "+ ((JoinAckMessage)getMessage()).getNeighbourNode().getHostPort());
                     ProcessorThread.getServer().setGlobalList(getGlobalList());
 
-					System.out.println("heartbeat setting true");
-					//ProcessorThread.getServer().setSendHeartBeat(true);
+
 					ProcessorThread.getMulticastServer().ensureRunning(getMessage().getMulticastGroup(), getMessage().getMulticastPort());
 					MemberNode self = ProcessorThread.getServer().getNode();
 					MulticastJoinMessage message = new MulticastJoinMessage(self,self,self);
@@ -57,8 +57,8 @@ public class JoinAckMessage extends Message {
 					ProcessorThread.getMulticastServer().multicastUpdate(message);
 
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				 ProcessorThread.getServer().getLogger().info("Updating neighbor or multicasting update failed");
+				 System.out.println("updating neighbor failed");
 				}
 			}
 		}.start();

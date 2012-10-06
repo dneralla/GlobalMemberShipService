@@ -86,7 +86,7 @@ public class MulticastServer {
 	}
 
 	void multicastUpdate(Message multicastMessage) throws Exception, IOException {
-		System.out.println("Sending multicast update");
+		ProcessorThread.getServer().getLogger().info("Sending multicast update of Node"+multicastMessage.getAlteredNode());
 	    byte[] bytes = multicastMessage.toBytes();
 		DatagramPacket packet =
 				new DatagramPacket(bytes, bytes.length, getMulticastGroup(), getMulticastPort());
