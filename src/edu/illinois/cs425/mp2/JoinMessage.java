@@ -1,5 +1,8 @@
 package edu.illinois.cs425.mp2;
 
+import java.util.Date;
+import java.util.List;
+
 
 public class JoinMessage extends Message {
 
@@ -11,6 +14,12 @@ public class JoinMessage extends Message {
 	public JoinMessage(String messageType) {
 		super(messageType);
 	}
+	
+	public JoinMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
+		super(sourceNode, centralNode, alteredNode);
+	}
+	
+	
 
 	@Override
 	public void processMessage() {
@@ -27,18 +36,25 @@ public class JoinMessage extends Message {
 
 					// should change this step (TODO: master may be detected as
 					// failure)
+					MemberNode oldNeighbourNode = ProcessorThread.getServer().getNeighborNode();
 					ProcessorThread.getServer().setNeighborNode(
 							getMessage().getSourceNode());
+					ProcessorThread.toStartHeartBeating=false;
+					ProcessorThread.getServer().getTimer().stop();
 					Message ackMessage = new JoinAckMessage(ProcessorThread.getServer().getNode(), null, null);
 
-					((JoinAckMessage)ackMessage).setNeighbourNode(ProcessorThread.getServer().getNeighborNode());
+					((JoinAckMessage)ackMessage).setNeighbourNode(oldNeighbourNode);
+					((JoinAckMessage)ackMessage).setGlobalList(ProcessorThread.getServer().getGlobalList());
+					ProcessorThread.getServer().getLogger().info("Neighbour node in Join Ack message is: "+ ProcessorThread.getServer().getNeighborNode());
 					ackMessage.setMulticastGroup(ProcessorThread
 							.getMulticastServer().getMulticastGroup());
 					ackMessage.setMulticastPort(ProcessorThread
 							.getMulticastServer().getMulticastPort());
+					
+					
 
 					ProcessorThread.getServer().sendMessage(ackMessage, getMessage().getSourceNode());
-					ProcessorThread.getServer().setSendHeartBeat(true);
+					// ProcessorThread.getServer().setSendHeartBeat(true);
 					// ensure reliability in 5 seconds (TODO)
 					// send back the multi-cast group, port number neighbour to
 					// new node

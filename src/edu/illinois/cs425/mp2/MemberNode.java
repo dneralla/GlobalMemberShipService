@@ -8,7 +8,7 @@ package edu.illinois.cs425.mp2;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
-public class MemberNode {
+public class MemberNode  implements java.io.Serializable{
 
 	private InetAddress hostAddress;
 	private int hostPort;
@@ -48,6 +48,8 @@ public class MemberNode {
 	}
 
 	public boolean compareTo(MemberNode node) {
+		if(node == null)
+			return false;
 		if (this.getHostAddress().equals(node.getHostAddress())
 				&& this.getHostPort() == node.getHostPort())
 			return true;

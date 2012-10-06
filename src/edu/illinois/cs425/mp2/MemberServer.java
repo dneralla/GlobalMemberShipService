@@ -8,6 +8,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,17 +23,26 @@ import java.util.logging.SimpleFormatter;
  * created and it sends messages if flag sendHeartBeat is set. All variables which
  * are accessed by multiple threads are declared as volatile.
  */
-public class MemberServer {
+public class MemberServer{
 	// node information
 	private MemberNode node;
 	private volatile MemberNode neighborNode;
 	private volatile long lastReceivedHeartBeatTime;
-	private volatile boolean sendHeartBeat = false;
+	private volatile boolean sendHeartBeat = true;
 	private volatile List<MemberNode> globalList;
     private volatile Logger logger;
     private DatagramSocket socket;
     private volatile MemberNode recentLeftNode;
+    private TimerThread timer;
 
+
+	public TimerThread getTimer() {
+		return timer;
+	}
+
+	public void setTimer(TimerThread timer) {
+		this.timer = timer;
+	}
 
 	public MemberNode getRecentLeftNode() {
 		return recentLeftNode;
@@ -69,9 +79,9 @@ public class MemberServer {
 	private MemberServer() {
 		// initially doesn't have any neighbors
 		this.neighborNode = null;
-		this.globalList = new LinkedList<MemberNode>(Arrays.asList(node));
 		this.sendHeartBeat = false;
 		this.recentLeftNode = null;
+		this.globalList = new ArrayList<MemberNode>();
 	}
 
 	public long getLastReceivedHeartBeatTime() {
@@ -97,6 +107,7 @@ public class MemberServer {
 	    server.socket = new DatagramSocket(hostPort);
 	    server.setNode(node);
 		server.setNeighborNode(node);
+		server.globalList.add(node);
 		return server;
 	}
 
@@ -142,8 +153,8 @@ public class MemberServer {
 	}
 
     public void sendMessage(Message message, MemberNode receiver) throws Exception {
-        System.out.println("Sending message " + message);
-    	getLogger().info(message.getDescription());
+        //System.out.println("Sending message " + message);
+    	//getLogger().info(message.getDescription());
     	DatagramPacket packet = new DatagramPacket(message.toBytes(),
 				message.toBytes().length, receiver.getHostAddress(), receiver.getHostPort());
 		getSocket().send(packet);
@@ -159,20 +170,19 @@ public class MemberServer {
 		MulticastServer multicastServer = null;
 		FileHandler fileTxt = new FileHandler("Server"+args[0]+".log");
 		SimpleFormatter formatterTxt = new SimpleFormatter();
-		boolean listening = true;
-
+		
 		// Create Logger
 		Logger logger = Logger.getLogger(MemberServer.class.getName());
 		logger.setLevel(Level.INFO);
 
-		// Create txt Formatter
-		formatterTxt = new SimpleFormatter();
+		
 		fileTxt.setFormatter(formatterTxt);
 		logger.addHandler(fileTxt);
 
 		try {
 			server = MemberServer.start("localhost", Integer.parseInt(args[0]));
 			multicastServer = new MulticastServer(server);
+			server.setLogger(logger);
 		} catch (SocketException e) {
 			System.out.println("Error: Unable to open socket");
 			System.exit(-1);
@@ -185,8 +195,9 @@ public class MemberServer {
 		}
 		logger.info("Staring logging");
 		// starting heartbeat thread
-		new HeartBeatServiceThread(server).start();
+		
 		new ProcessorThread(server, multicastServer).start();
+		new HeartBeatServiceThread().start();
 
 		try {
 			
@@ -197,15 +208,24 @@ public class MemberServer {
 			while ((inputLine = in.readLine()) != null) {
 				if (inputLine.startsWith("join")) {
 					byte[] buf = new byte[256];
-					buf = new JoinMessage("JOIN").toBytes();
+				     Message message = new JoinMessage(server.getNode(), null, null);
+					 buf=message.toBytes();
 					System.out.println("Join message sending");
-					// InetAddress address = InetAddress.getByName(args[0]);
+					
 					DatagramPacket packet = new DatagramPacket(buf, buf.length,
-							InetAddress.getByName("localhost"), 5091);
+							InetAddress.getByName("localhost"), 5090);
 					server.getSocket().send(packet);
+					System.out.println("Join message sent");
+					
 				} else if (inputLine.startsWith("leave")) {
 
-				} else if (inputLine.equals("help")) {
+				} else if (inputLine.startsWith("print")) {
+					System.out.print("[");
+					for(MemberNode node: server.globalList)
+					System.out.print(node.getHostPort()+", ");
+					System.out.println("]");
+				}
+				else if (inputLine.equals("help")) {
 					System.out
 							.println("Usage: [join|leave] <hostname:hostport>");
 				} else if (inputLine.equals("exit")) {

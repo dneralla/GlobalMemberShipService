@@ -139,6 +139,7 @@ public abstract class Message implements Serializable {
 	public String getDescription() {
 		// TODO Auto-generated method stub
 		return getMessageType() + " ";
+		//return null;
 	}
 
 	public boolean checkIsIntructionJoinVariant() {
@@ -150,6 +151,7 @@ public abstract class Message implements Serializable {
 				.getGlobalList();
 		boolean isLatestUpdate = false, isNewEntry = true;
 		Date timeStamp = getSourceNode().getTimeStamp();
+		System.out.println("Global List::" +globalList);
 		for (MemberNode member : globalList) {
 			if (member.compareTo(getSourceNode())) {
 				isNewEntry = false;
@@ -171,6 +173,17 @@ public abstract class Message implements Serializable {
             }
 		}
 		return isLatestUpdate;
+	}
+	
+	public void mergeIntoMemberList(MemberNode node) {
+		List<MemberNode> globalList = ProcessorThread.getServer()
+				.getGlobalList();
+		Date timeStamp = getSourceNode().getTimeStamp();
+		for (MemberNode member : globalList) {
+			if (member.compareTo(node)) {
+				globalList.add(getSourceNode());
+            }
+		}
 	}
 	 public abstract void processMessage();
 	// public abstract void mergeIntoMessageList();
