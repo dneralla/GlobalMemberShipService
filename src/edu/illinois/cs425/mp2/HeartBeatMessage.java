@@ -1,15 +1,14 @@
 package edu.illinois.cs425.mp2;
 
-import java.io.IOException;
 
 public class HeartBeatMessage extends Message {
 
-	
-    
-	
+
+
+
 	private static final long serialVersionUID = 1L;
-	
-   
+
+
 	public HeartBeatMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
 		super(sourceNode, centralNode, alteredNode);
 	  }
@@ -21,22 +20,30 @@ public class HeartBeatMessage extends Message {
 
 	@Override
 	public void processMessage() {
-	    
+
 	    System.out.println(this.getSourceNode().getHostPort());
 		if (!ProcessorThread.toStartHeartBeating) {
-			ProcessorThread.getServer().setTimer(new TimerThread(this));
+			ProcessorThread.getServer().setTimer(new TimerThread());
 			System.out.println("starting");
 			ProcessorThread.getServer().getTimer().start();
 		    ProcessorThread.toStartHeartBeating = true;
 		}
-		//System.out.println("PORT::"+ getSourceNode().getHostPort());
-		updateTimer();
+	   updateTimer();
 	}
 
 	public void updateTimer() {
+		if(!(ProcessorThread.getServer().getHeartbeatSendingNode().compareTo(this.getSourceNode())))
+		{
+
+			ProcessorThread.getServer().setHeartbeatSendingNode(this.getSourceNode());
+			ProcessorThread.toStartHeartBeating=false;
+			ProcessorThread.getServer().getTimer().stop();
+
+
+		}
         ProcessorThread.getServer().setLastReceivedHeartBeatTime(
 				System.currentTimeMillis());
 	}
 
-	
+
 }

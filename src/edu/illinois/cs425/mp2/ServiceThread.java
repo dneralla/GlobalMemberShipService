@@ -7,7 +7,10 @@ public class ServiceThread extends Thread{
 	public Message getMessage() {
 		return message;
 	}
-
+    public ServiceThread()
+    {
+    	this.message=null;
+    }
 	public ServiceThread(Message message)
 	{
 		this.message = message;

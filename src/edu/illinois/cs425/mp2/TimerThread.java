@@ -1,12 +1,15 @@
 package edu.illinois.cs425.mp2;
 
 public class TimerThread extends ServiceThread{
-	
+
 	public TimerThread(Message message)
 	{
 		super(message);
 	}
-	
+	public TimerThread()
+	{
+		super();
+	}
 	@Override
 	public void run()
 	{
@@ -16,18 +19,18 @@ public class TimerThread extends ServiceThread{
 							.getLastReceivedHeartBeatTime() > 5 * 1000) {
 
 				System.out.println("Detected");
-				
-				processFailure(getMessage().getSourceNode());
+
+				processFailure(ProcessorThread.getServer().getHeartbeatSendingNode());
 				ProcessorThread.toStartHeartBeating = false;
-				
+
 			     this.stop();
 			} }
-		
+
 	}
-		
+
 		public void processFailure(MemberNode node) {
 			try {
-				
+
 			System.out.println("Processing Failure message");
 
 			ProcessorThread.getMulticastServer().ensureRunning(ProcessorThread.getMulticastServer().getMulticastGroup(), ProcessorThread.getMulticastServer().getMulticastPort());

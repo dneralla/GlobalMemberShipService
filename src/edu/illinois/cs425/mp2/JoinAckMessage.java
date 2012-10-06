@@ -43,8 +43,8 @@ public class JoinAckMessage extends Message {
 					ProcessorThread.getServer().setNeighborNode(((JoinAckMessage)getMessage()).getNeighbourNode());
 				      System.out.println("In request"+((JoinAckMessage)getMessage()).getNeighbourNode().getHostPort());
 					System.out.println("Join ack neighbor"+ ProcessorThread.getServer().getNeighborNode().getHostPort());
-					ProcessorThread.toStartHeartBeating=false;
-					ProcessorThread.getServer().getTimer().stop();
+					//ProcessorThread.toStartHeartBeating=false;
+					//ProcessorThread.getServer().getTimer().stop();
 					ProcessorThread.getServer().getLogger().info("Neighbour node in Join Ack message is: "+ ((JoinAckMessage)getMessage()).getNeighbourNode().getHostPort());
                     ProcessorThread.getServer().setGlobalList(getGlobalList());
 

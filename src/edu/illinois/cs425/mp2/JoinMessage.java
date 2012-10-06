@@ -1,7 +1,5 @@
 package edu.illinois.cs425.mp2;
 
-import java.util.Date;
-import java.util.List;
 
 
 public class JoinMessage extends Message {
@@ -14,19 +12,19 @@ public class JoinMessage extends Message {
 	public JoinMessage(String messageType) {
 		super(messageType);
 	}
-	
+
 	public JoinMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
 		super(sourceNode, centralNode, alteredNode);
 	}
-	
-	
+
+
 
 	@Override
 	public void processMessage() {
 		System.out.println("Processign message");
 		new ServiceThread(this) {
-			
-			
+
+
 			@Override
 			public void run() {
 				try {
@@ -39,8 +37,8 @@ public class JoinMessage extends Message {
 					MemberNode oldNeighbourNode = ProcessorThread.getServer().getNeighborNode();
 					ProcessorThread.getServer().setNeighborNode(
 							getMessage().getSourceNode());
-					ProcessorThread.toStartHeartBeating=false;
-					ProcessorThread.getServer().getTimer().stop();
+					//ProcessorThread.toStartHeartBeating=false;
+					//ProcessorThread.getServer().getTimer().stop();
 					Message ackMessage = new JoinAckMessage(ProcessorThread.getServer().getNode(), null, null);
 
 					((JoinAckMessage)ackMessage).setNeighbourNode(oldNeighbourNode);
@@ -50,8 +48,8 @@ public class JoinMessage extends Message {
 							.getMulticastServer().getMulticastGroup());
 					ackMessage.setMulticastPort(ProcessorThread
 							.getMulticastServer().getMulticastPort());
-					
-					
+
+
 
 					ProcessorThread.getServer().sendMessage(ackMessage, getMessage().getSourceNode());
 					// ProcessorThread.getServer().setSendHeartBeat(true);

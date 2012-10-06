@@ -166,7 +166,7 @@ public class MemberServer{
 		MulticastServer multicastServer = null;
 		FileHandler fileTxt = new FileHandler("Server" + args[0] + ".log");
 		SimpleFormatter formatterTxt = new SimpleFormatter();
-		MemberNode master  = new MemberNode("linux3.ews.illinois.edu", Integer.parseInt(args[0]));
+		MemberNode master  = new MemberNode(InetAddress.getLocalHost(), 5090);
 
 		// Create Logger
 		LogManager lm = LogManager.getLogManager();
