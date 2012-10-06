@@ -13,7 +13,7 @@ public class MulticastServer {
 	private MemberServer server;
 	private MulticastSocket multicastSocket;
 	private InetAddress multicastGroup;
-	
+
 	public MemberServer getServer() {
 		return server;
 	}
@@ -25,13 +25,13 @@ public class MulticastServer {
 	public MulticastServer(MemberServer server) {
 		this.server = server;
 		try {
-			this.multicastGroup=InetAddress.getByName("224.4.5.6");
-			this.multicastPort=5200;
+			this.multicastGroup = InetAddress.getByName("224.4.5.6");
+			this.multicastPort = 5200;
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public int getMulticastPort() {
@@ -71,7 +71,6 @@ public class MulticastServer {
 
 	public synchronized void ensureRunning(InetAddress multicastGroup,
 			int multicastPort) throws IOException {
-		// senderAddressTODO Auto-generated method stub
 		if (!isRunning) {
 			this.multicastGroup = multicastGroup;
 			this.multicastPort = multicastPort;
@@ -87,6 +86,7 @@ public class MulticastServer {
 	}
 
 	void multicastUpdate(Message multicastMessage) throws Exception, IOException {
+		System.out.println("Sending multicast update");
 	    byte[] bytes = multicastMessage.toBytes();
 		DatagramPacket packet =
 				new DatagramPacket(bytes, bytes.length, getMulticastGroup(), getMulticastPort());
