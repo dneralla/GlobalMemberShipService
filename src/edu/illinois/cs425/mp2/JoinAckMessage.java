@@ -32,7 +32,7 @@ public class JoinAckMessage extends Message {
 		super(messageType);
 		// TODO Auto-generated constructor stub
 	}
-
+  
 	public void mergeIntoMemberList(MemberNode node) {
 		List<MemberNode> globalList = ProcessorThread.getServer()
 				.getGlobalList();

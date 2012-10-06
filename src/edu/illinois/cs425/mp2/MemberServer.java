@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
@@ -160,42 +161,37 @@ public class MemberServer{
 		getSocket().send(packet);
     }
 
-	public static void main(String[] args) throws Exception {
-
-		// if(args.length < 2) {
-		// System.out.println("Usage: java <portnumber>");
-		// return;
-		// }
+	public static void main(String[] args) throws Exception { 
 		MemberServer server = null;
 		MulticastServer multicastServer = null;
 		FileHandler fileTxt = new FileHandler("Server"+args[0]+".log");
 		SimpleFormatter formatterTxt = new SimpleFormatter();
 		
 		// Create Logger
-		Logger logger = Logger.getLogger(MemberServer.class.getName());
+		LogManager lm = LogManager.getLogManager();
+		lm.reset();
+		Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 		logger.setLevel(Level.INFO);
-
-		
 		fileTxt.setFormatter(formatterTxt);
 		logger.addHandler(fileTxt);
+		
+		lm.addLogger(logger);
 
 		try {
 			server = MemberServer.start("localhost", Integer.parseInt(args[0]));
 			multicastServer = new MulticastServer(server);
 			server.setLogger(logger);
-			
-		} catch (SocketException e) {
+		    } catch (SocketException e) {
 			System.out.println("Error: Unable to open socket");
 			System.exit(-1);
-		} catch (IOException e) {
+		   } catch (IOException e) {
 			System.out.println("Could not	 listen on port.");
 			System.exit(-1);
-		} catch (Exception e) {
+		  } catch (Exception e) {
 			System.out.println("Byte Construction failed");
 			System.exit(-1);
-		}
-		logger.info("Staring logging");
-		// starting heartbeat thread
+		   }
+		
 		
 		new ProcessorThread(server, multicastServer).start();
 		new HeartBeatServiceThread().start();
@@ -209,16 +205,18 @@ public class MemberServer{
 			while ((inputLine = in.readLine()) != null) {
 				if (inputLine.startsWith("join")) {
 					byte[] buf = new byte[256];
-				     Message message = new JoinMessage(server.getNode(), null, null);
-					 buf=message.toBytes();
+				    Message message = new JoinMessage(server.getNode(), null, null);
+					buf=message.toBytes();
 					System.out.println("Join message sending");
-					
-					DatagramPacket packet = new DatagramPacket(buf, buf.length,
+				    DatagramPacket packet = new DatagramPacket(buf, buf.length,
 							InetAddress.getByName("localhost"), 5090);
 					server.getSocket().send(packet);
 					System.out.println("Join message sent");
+				    server.getLogger().info("Join message Sent");
 					
 				} else if (inputLine.startsWith("leave")) {
+					
+					server.getLogger().info("Leave Message sent");
 
 				} else if (inputLine.startsWith("print")) {
 					System.out.print("[");
@@ -237,7 +235,7 @@ public class MemberServer{
 				System.out.print("[Please Enter Command]$ ");
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 
