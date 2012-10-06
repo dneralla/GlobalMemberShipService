@@ -1,6 +1,5 @@
 package edu.illinois.cs425.mp2;
 
-import java.util.Date;
 import java.util.List;
 
 public class JoinAckMessage extends Message {
@@ -11,7 +10,7 @@ public class JoinAckMessage extends Message {
 	public List<MemberNode> getGlobalList() {
 		return globalList;
 	}
-	
+
 	public void setGlobalList(List<MemberNode> globalList) {
 		this.globalList = globalList;
 	}
@@ -33,16 +32,6 @@ public class JoinAckMessage extends Message {
 		// TODO Auto-generated constructor stub
 	}
 
-	public void mergeIntoMemberList(MemberNode node) {
-		List<MemberNode> globalList = ProcessorThread.getServer()
-				.getGlobalList();
-		for (MemberNode member : globalList) {
-			if (member.compareTo(node)) {
-				globalList.add(getSourceNode());
-            }
-		}
-	}
-	
 	@Override
 	public void processMessage() {
 		new ServiceThread(this) {
@@ -54,10 +43,8 @@ public class JoinAckMessage extends Message {
 					ProcessorThread.toStartHeartBeating=false;
 					ProcessorThread.getServer().getTimer().stop();
 					ProcessorThread.getServer().getLogger().info("Neighbour node in Join Ack message is: "+ ((JoinAckMessage)getMessage()).getNeighbourNode().getHostPort());
-                    for(MemberNode node: getGlobalList()) {
-                    	mergeIntoMemberList(node);
-                    }
-                    
+                    ProcessorThread.getServer().setGlobalList(getGlobalList());
+
 					System.out.println("heartbeat setting true");
 					//ProcessorThread.getServer().setSendHeartBeat(true);
 					ProcessorThread.getMulticastServer().ensureRunning(getMessage().getMulticastGroup(), getMessage().getMulticastPort());

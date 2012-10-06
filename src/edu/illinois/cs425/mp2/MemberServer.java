@@ -9,8 +9,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -170,12 +168,12 @@ public class MemberServer{
 		MulticastServer multicastServer = null;
 		FileHandler fileTxt = new FileHandler("Server"+args[0]+".log");
 		SimpleFormatter formatterTxt = new SimpleFormatter();
-		
+
 		// Create Logger
 		Logger logger = Logger.getLogger(MemberServer.class.getName());
 		logger.setLevel(Level.INFO);
 
-		
+
 		fileTxt.setFormatter(formatterTxt);
 		logger.addHandler(fileTxt);
 
@@ -183,7 +181,7 @@ public class MemberServer{
 			server = MemberServer.start("localhost", Integer.parseInt(args[0]));
 			multicastServer = new MulticastServer(server);
 			server.setLogger(logger);
-			
+
 		} catch (SocketException e) {
 			System.out.println("Error: Unable to open socket");
 			System.exit(-1);
@@ -196,12 +194,10 @@ public class MemberServer{
 		}
 		logger.info("Staring logging");
 		// starting heartbeat thread
-		
+
 		new ProcessorThread(server, multicastServer).start();
 		new HeartBeatServiceThread().start();
-
 		try {
-			
 			String inputLine;
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					System.in));
@@ -212,12 +208,12 @@ public class MemberServer{
 				     Message message = new JoinMessage(server.getNode(), null, null);
 					 buf=message.toBytes();
 					System.out.println("Join message sending");
-					
+
 					DatagramPacket packet = new DatagramPacket(buf, buf.length,
 							InetAddress.getByName("localhost"), 5090);
 					server.getSocket().send(packet);
 					System.out.println("Join message sent");
-					
+
 				} else if (inputLine.startsWith("leave")) {
 
 				} else if (inputLine.startsWith("print")) {

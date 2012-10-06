@@ -4,7 +4,7 @@ public class MulticastJoinMessage extends MulticastMessage {
 
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -12,8 +12,10 @@ public class MulticastJoinMessage extends MulticastMessage {
 		super(sourceNode, centralNode, alteredNode);
 	}
 
+	@Override
 	public void processMessage()
 	{
+		System.out.println("Processing multicast join message");
 		new ServiceThread(this) {
 			@Override
 			public void run() {
@@ -28,11 +30,11 @@ public class MulticastJoinMessage extends MulticastMessage {
 			}
 		}.start();
 	}
-	
-	
+
+
 	public MulticastJoinMessage(String messageType) {
 		super(messageType);
-		
+
 		// TODO Auto-generated constructor stub
 	}
 
