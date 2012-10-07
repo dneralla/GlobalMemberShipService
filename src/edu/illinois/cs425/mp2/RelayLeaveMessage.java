@@ -1,0 +1,20 @@
+package edu.illinois.cs425.mp2;
+
+public class RelayLeaveMessage extends RelayMessage {
+
+	public RelayLeaveMessage(String messageType) {
+		super(messageType);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public Message getNewMulticastMessage(MemberNode sourceNode, MemberNode centralNode,
+			MemberNode alteredNode) {
+		// TODO Auto-generated method stub
+		return new MulticastLeaveMessage(sourceNode, centralNode, alteredNode);
+	}
+
+	public RelayLeaveMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode)  {
+		super(sourceNode, centralNode, alteredNode);
+	}
+}
