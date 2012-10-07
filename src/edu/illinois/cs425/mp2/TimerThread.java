@@ -18,7 +18,7 @@ public class TimerThread extends ServiceThread{
 		while (true) {
 			if (System.currentTimeMillis()
 					- ProcessorThread.getServer()
-							.getLastReceivedHeartBeatTime() > 5 * 1000) {
+							.getLastReceivedHeartBeatTime() > 2 * 1000) {
 
 				System.out.println("failure Detected of node"+ProcessorThread.getServer().getHeartbeatSendingNode().getHostAddress());
 				ProcessorThread.getServer().getLogger().info("failure Detected of node"+ProcessorThread.getServer().getHeartbeatSendingNode().getHostAddress());
@@ -36,13 +36,12 @@ public class TimerThread extends ServiceThread{
 
 
 			MemberNode self = ProcessorThread.getServer().getNode();
-			// TODO: in case of failure detection, altered is faulty node //Get sending nodel
+			
 			node.setTimeStamp(new Date());
-		
-			MulticastFailureMessage message = new MulticastFailureMessage(self, self,node);
-			message.mergeIntoMemberList();
-	        
+		    MulticastFailureMessage message = new MulticastFailureMessage(self, self,node);
 			ProcessorThread.getMulticastServer().multicastUpdate(message);
+			message.mergeIntoMemberList();
+	        ProcessorThread.getMulticastServer().multicastUpdate(message);
 			}
 			catch(Exception e)
 			{

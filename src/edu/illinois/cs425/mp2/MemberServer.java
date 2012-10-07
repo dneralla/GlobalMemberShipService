@@ -122,7 +122,8 @@ public class MemberServer{
 	}
 
     public void sendMessage(Message message, MemberNode receiver) throws Exception {
-        //System.out.println("Sending message " + message);
+    	if(!(message instanceof HeartBeatMessage))
+        System.out.println("Sending message " + "sender: " + message.getSourceNode().getHostPort()+ "receiver: "+ receiver.getHostPort());
     	//getLogger().info(message.getDescription());
     	DatagramPacket packet = new DatagramPacket(message.toBytes(),
 				message.toBytes().length, receiver.getHostAddress(), receiver.getHostPort());
@@ -133,7 +134,7 @@ public class MemberServer{
     	System.out.print("[");
 		for (MemberNode node : getGlobalList())
 			if(node!=null)
-				System.out.print(node.getHostPort() + ", ");
+				System.out.print(node.getHostAddress()+" "+node.getHostPort() + ", ");
 		System.out.println("]");
     }
     
@@ -198,7 +199,7 @@ public class MemberServer{
 				if (inputLine.equals("join")) {
 					server.getNode().setTimeStamp(new Date());
 					Message message = new JoinMessage(server.getNode(), null,
-							null);
+							server.getNode());
 
 					
 					server.getLogger().info("Join message sending to"+master.getHostAddress());

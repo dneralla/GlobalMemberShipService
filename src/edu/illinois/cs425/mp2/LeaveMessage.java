@@ -1,6 +1,6 @@
 package edu.illinois.cs425.mp2;
 
-import java.util.Date;
+
 
 public class LeaveMessage extends Message {
 

@@ -177,7 +177,9 @@ public abstract class Message implements Serializable {
 							.getTimeStamp()
 							.after(ProcessorThread.getServer()
 									.getRecentLeftNode().getTimeStamp()))) {
+				System.out.println("Altered Node: + " + alteredNode.getHostPort());
 				globalList.add(getAlteredNode());
+				System.out.println("In merge for join");
 				return true;
 			} else if (matchingNode.getTimeStamp().before(
 					getAlteredNode().getTimeStamp())) {
@@ -185,11 +187,13 @@ public abstract class Message implements Serializable {
 				return true;
 			}
 		} else {
+			
 			if (matchingNode != null
 					&& matchingNode.getTimeStamp().before(
 							getAlteredNode().getTimeStamp())) {
 				globalList.remove(getAlteredNode());
 				ProcessorThread.getServer().setRecentLeftNode(getAlteredNode());
+				System.out.println("In merge for join");
 				return true;
 			} else {
 				ProcessorThread.getServer().setRecentLeftNode(getAlteredNode());

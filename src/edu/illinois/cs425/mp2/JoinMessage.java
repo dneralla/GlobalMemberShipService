@@ -26,7 +26,7 @@ public class JoinMessage extends Message {
 	
 	@Override
 	public void processMessage() {
-		System.out.println("Processign message");
+		System.out.println("Processing Join message");
 		new ServiceThread(this) {
 
 
@@ -34,14 +34,13 @@ public class JoinMessage extends Message {
 			public void run() {
 				try {
 					ProcessorThread.getServer().getLogger().info("Servicing Join request of node"+getMessage().getSourceNode().getHostAddress());
-					// Pre condition: source node must be populated with the node joined/left/failed
+
 					((JoinMessage) getMessage()).mergeIntoMemberList();
 
 					MemberNode oldNeighbourNode = ProcessorThread.getServer().getNeighborNode();
 					ProcessorThread.getServer().setNeighborNode(
 							getMessage().getSourceNode());
-					//ProcessorThread.toStartHeartBeating=false;
-					//ProcessorThread.getServer().getTimer().stop();
+					
 					Message ackMessage = new JoinAckMessage(ProcessorThread.getServer().getNode(), null, null);
 
 					((JoinAckMessage)ackMessage).setNeighbourNode(oldNeighbourNode);
@@ -55,6 +54,7 @@ public class JoinMessage extends Message {
 
 					ProcessorThread.getServer().getLogger().info("Processing join failed of node"+getMessage().getSourceNode().getHostAddress());
                     System.out.println("Processing join failed");
+                    e.printStackTrace();
 				}
 			}
 		}.start();

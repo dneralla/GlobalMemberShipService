@@ -15,7 +15,7 @@ public class MulticastJoinMessage extends MulticastMessage {
 	@Override
 	public void processMessage()
 	{
-
+         System.out.println("processing multicast join");
 		new ServiceThread(this) {
 
 			@Override

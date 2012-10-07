@@ -1,6 +1,7 @@
 package edu.illinois.cs425.mp2;
 
-public class MulticastFailureMessage extends MulticastMessage{
+public class MulticastFailureMessage extends MulticastMessage
+{
 	/**
 	 *
 	 */
@@ -14,6 +15,7 @@ public class MulticastFailureMessage extends MulticastMessage{
 	@Override
 	public void processMessage()
 	{
+		System.out.println("Processing multicast failure message");
 		new ServiceThread(this) {
 			@Override
 			public void run() {
@@ -27,7 +29,7 @@ public class MulticastFailureMessage extends MulticastMessage{
 						ProcessorThread.getServer().sendMessage(message, ProcessorThread.getServer().getNeighborNode());
 						if(getMessage().getAlteredNode().compareTo(ProcessorThread.getServer().getNeighborNode()))
 						{
-							ProcessorThread.getServer().setNeighborNode(getMessage().getAlteredNode());
+							ProcessorThread.getServer().setNeighborNode(getMessage().getSourceNode());
 						}
 
 					}
@@ -38,18 +40,21 @@ public class MulticastFailureMessage extends MulticastMessage{
 				}
 			}
 		}.start();
-
+		
 	}
 
-	@Override
-	public RelayFailureMessage getNewRelayMessage(MemberNode sourceNode, MemberNode centralNode,
-			MemberNode alteredNode) {
+  
 
-		return new RelayFailureMessage(sourceNode, centralNode, alteredNode);
-	}
 
 	public MulticastFailureMessage(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
 		super(sourceNode, centralNode, alteredNode);
+	}
+
+	@Override
+	public RelayFailureMessage getNewRelayMessage(MemberNode sourceNode,
+			MemberNode centralNode, MemberNode alteredNode) {
+		
+		return new RelayFailureMessage(sourceNode, centralNode, alteredNode);
 	}
 
 

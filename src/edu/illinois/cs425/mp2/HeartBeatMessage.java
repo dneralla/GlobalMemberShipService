@@ -1,10 +1,10 @@
 package edu.illinois.cs425.mp2;
-
+import java.util.Random;
 
 public class HeartBeatMessage extends Message {
 
 
-
+     
 
 	private static final long serialVersionUID = 1L;
 
@@ -19,16 +19,22 @@ public class HeartBeatMessage extends Message {
 
 	@Override
 	public void processMessage() {
-
-	    ProcessorThread.getServer().getLogger().info("HeratBeatReceieved from host"+this.getSourceNode().getHostAddress().toString());
+		double loss_rate =0.5;
+		Random r= new Random();
+		System.out.println(r.nextDouble());
+		
+	    ProcessorThread.getServer().getLogger().info("Hear tBeatReceieved from host"+this.getSourceNode().getHostAddress().toString());
 
 		if (!ProcessorThread.toStartHeartBeating) {
 			ProcessorThread.getServer().setTimer(new TimerThread());
-
+			
 			ProcessorThread.getServer().getTimer().start();
 		    ProcessorThread.toStartHeartBeating = true;
 		}
+		if(r.nextDouble()>loss_rate)
+		{
 	   updateTimer();
+		}
 	}
 
 	public void updateTimer() {

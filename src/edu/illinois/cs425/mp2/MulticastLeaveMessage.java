@@ -32,7 +32,7 @@ public class MulticastLeaveMessage extends MulticastMessage {
 						if (getMessage().getAlteredNode().compareTo(
 								ProcessorThread.getServer().getNeighborNode())) {
 							ProcessorThread.getServer().setNeighborNode(
-									getMessage().getAlteredNode());
+									getMessage().getSourceNode());
 						}
 
 					}
