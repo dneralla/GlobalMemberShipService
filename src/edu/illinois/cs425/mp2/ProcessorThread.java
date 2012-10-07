@@ -6,6 +6,9 @@ import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 
+/*
+ * Central class for processing messages.
+ */
 public class ProcessorThread extends Thread {
 	private static MemberServer server;
 	private static MulticastServer multicastServer;
@@ -21,7 +24,6 @@ public class ProcessorThread extends Thread {
 	public static void setMulticastServer(MulticastServer multicastServer) {
 		ProcessorThread.multicastServer = multicastServer;
 	}
-
 
 	static boolean toStartHeartBeating = false;
 
@@ -61,16 +63,8 @@ public class ProcessorThread extends Thread {
 
 	}
 
-
-
 	private void stopMultiCastServer() throws IOException {
 		multicastServer.stop();
 	}
-
-
-
-
-
-
 
 }

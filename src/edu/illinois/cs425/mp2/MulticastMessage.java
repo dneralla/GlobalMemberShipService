@@ -7,19 +7,12 @@ public abstract class MulticastMessage extends Message {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public MulticastMessage(String messageType) {
-		super(messageType);
-		// TODO Auto-generated constructor stub
-	}
-
 	public MulticastMessage(MemberNode sourceNode, MemberNode centralNode,
 			MemberNode alteredNode) {
 		super(sourceNode, centralNode, alteredNode);
 	}
 
-	public abstract RelayMessage getNewRelayMessage(MemberNode sourceNode, MemberNode centralNode,
-			MemberNode alteredNode);
-
-
+	public abstract RelayMessage getNewRelayMessage(MemberNode sourceNode,
+			MemberNode centralNode, MemberNode alteredNode);
 
 }

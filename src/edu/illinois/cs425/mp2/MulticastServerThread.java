@@ -19,9 +19,7 @@ public class MulticastServerThread extends Thread {
 	public void run() {
 		DatagramPacket packet;
 		Message message;
-
 		MulticastSocket socket = multicastServer.getMulticastListenerSocket();
-
 		boolean keepListening = true;
 		while (keepListening) {
 			byte receiveMessage[] = new byte[Message.MAX_MESSAGE_LENGTH];
@@ -34,9 +32,9 @@ public class MulticastServerThread extends Thread {
 				ObjectInputStream in = null;
 				in = new ObjectInputStream(bis);
 				message = (Message) in.readObject();
-				multicastServer.getServer().getLogger().info(message.getDescription());
+				multicastServer.getServer().getLogger()
+						.info(message.getDescription());
 				message.processMessage();
-
 
 			} catch (IOException e) {
 

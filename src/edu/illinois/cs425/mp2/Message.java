@@ -16,15 +16,10 @@ import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
  * the corresponding processMesmethod is invoked.
  */
 public abstract class Message implements Serializable {
-
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 1L;
 
 	static final int MAX_MESSAGE_LENGTH = 1024;
-
-	private String messageType;
+	
 	private InetAddress host;
 	private int port;
 	private int multicastPort;
@@ -32,9 +27,13 @@ public abstract class Message implements Serializable {
 	private InetAddress originalHost;
 	private int originalPort;
 
+	// sourceNode always contains the details of message sender
+    // centralNode always contains the details of node who multicasts the update 
+	// alteredNode always contains the details of joined/failed/left node
 	private MemberNode sourceNode, centralNode, alteredNode;
 
-	public Message(MemberNode sourceNode, MemberNode centralNode, MemberNode alteredNode) {
+	public Message(MemberNode sourceNode, MemberNode centralNode,
+			MemberNode alteredNode) {
 		this.sourceNode = sourceNode;
 		this.centralNode = centralNode;
 		this.alteredNode = alteredNode;
@@ -96,22 +95,6 @@ public abstract class Message implements Serializable {
 		this.multicastGroup = multicastGroup;
 	}
 
-	// Can be JOIN ,LEAVE,HEARTBEAT
-	// private InetAddress host;
-	// private int port;
-
-	public Message(String messageType) {
-		this.messageType = messageType;
-	}
-
-	public String getMessageType() {
-		return messageType;
-	}
-
-	public void setMessageType(String messageType) {
-		this.messageType = messageType;
-	}
-
 	public byte[] toBytes() throws Exception {
 		byte[] yourBytes = null;
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -145,21 +128,18 @@ public abstract class Message implements Serializable {
 	}
 
 	public String getDescription() {
-		return "Source Node : " + getSourceNode().getHostPort() +
-			   "Central Node: " + getCentralNode().getHostPort() +
-			   "Altered Node: " + getAlteredNode().getHostPort();
+		return "Source Node : " + getSourceNode().getHostPort()
+				+ "Central Node: " + getCentralNode().getHostPort()
+				+ "Altered Node: " + getAlteredNode().getHostPort();
 	}
 
 	public boolean checkIsIntructionJoinVariant() {
-		return this instanceof JoinMessage ||
-			   this instanceof MulticastJoinMessage ||
-			   this instanceof RelayJoinMessage;
+		return this instanceof JoinMessage
+				|| this instanceof MulticastJoinMessage
+				|| this instanceof RelayJoinMessage;
 	}
 
-	
 	public synchronized boolean mergeIntoMemberList() {
-
-
 
 		List<MemberNode> globalList = (ArrayList<MemberNode>) ProcessorThread
 				.getServer().getGlobalList();
@@ -171,13 +151,14 @@ public abstract class Message implements Serializable {
 			if (matchingNode == null
 					&&
 					/* && checkHasJoinArrivedLate() */
-					(ProcessorThread.getServer().getRecentLeftNode() == null ||
-							!ProcessorThread.getServer().getRecentLeftNode()
-							.equals(getAlteredNode()) || getAlteredNode()
+					(ProcessorThread.getServer().getRecentLeftNode() == null
+							|| !ProcessorThread.getServer().getRecentLeftNode()
+									.equals(getAlteredNode()) || getAlteredNode()
 							.getTimeStamp()
 							.after(ProcessorThread.getServer()
 									.getRecentLeftNode().getTimeStamp()))) {
-				System.out.println("Altered Node: + " + alteredNode.getHostPort());
+				System.out.println("Altered Node: + "
+						+ alteredNode.getHostPort());
 				globalList.add(getAlteredNode());
 				System.out.println("In merge for join");
 				return true;
@@ -187,7 +168,7 @@ public abstract class Message implements Serializable {
 				return true;
 			}
 		} else {
-			
+
 			if (matchingNode != null
 					&& matchingNode.getTimeStamp().before(
 							getAlteredNode().getTimeStamp())) {
@@ -202,6 +183,7 @@ public abstract class Message implements Serializable {
 		}
 		return false;
 	}
-	 public abstract void processMessage();
+
+	public abstract void processMessage();
 	// public abstract void mergeIntoMessageList();
 }

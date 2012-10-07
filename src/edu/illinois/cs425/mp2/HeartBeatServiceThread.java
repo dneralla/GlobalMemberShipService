@@ -1,11 +1,6 @@
 package edu.illinois.cs425.mp2;
 
 public class HeartBeatServiceThread extends Thread {
-
-	public HeartBeatServiceThread() {
-
-	}
-
 	@Override
 	public void run() {
 		try {
@@ -13,14 +8,25 @@ public class HeartBeatServiceThread extends Thread {
 					.getNode(), null, null);
 			while (true) {
 
-			   ProcessorThread.getServer().getLogger().info("HeartBeat Sending to"+ProcessorThread.getServer().getNeighborNode().getHostAddress().toString());
-               ProcessorThread.getServer().sendMessage(m, ProcessorThread.getServer().getNeighborNode());
-				Thread.sleep(500);
+				ProcessorThread
+						.getServer()
+						.getLogger()
+						.info("HeartBeat Sending to"
+								+ ProcessorThread.getServer().getNeighborNode()
+										.getHostAddress().toString());
+				ProcessorThread.getServer().sendMessage(m,
+						ProcessorThread.getServer().getNeighborNode());
+				Thread.sleep(100);
 			}
 		} catch (Exception e) {
 
 			System.out.println("Error in sending hearbeat message");
-		    ProcessorThread.getServer().getLogger().info("Error in sending heart beat message to"+ProcessorThread.getServer().getNeighborNode().getHostAddress());
+			ProcessorThread
+					.getServer()
+					.getLogger()
+					.info("Error in sending heart beat message to"
+							+ ProcessorThread.getServer().getNeighborNode()
+									.getHostAddress());
 		}
 	}
 }

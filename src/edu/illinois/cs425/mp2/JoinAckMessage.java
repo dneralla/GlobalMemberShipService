@@ -27,11 +27,6 @@ public class JoinAckMessage extends Message {
 		super(sourceNode, centralNode, alteredNode);
 	}
 
-	public JoinAckMessage(String messageType) {
-		super(messageType);
-		// TODO Auto-generated constructor stub
-	}
-
 
 	@Override
 	public void processMessage() {

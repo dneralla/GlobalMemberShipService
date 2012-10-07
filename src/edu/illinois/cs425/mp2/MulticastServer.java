@@ -2,30 +2,34 @@ package edu.illinois.cs425.mp2;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
+/*
+ * Class for managing multicast server
+ * and sending multicast messages.
+ */
 public class MulticastServer {
 
 	private static final int MULTICAST_LISTENER_PORT = 4446;
-    private static final String MULTICAST_GROUP = "230.0.0.1";
+	private static final String MULTICAST_GROUP = "230.0.0.1";
 	private boolean isRunning;
 	private MemberServer server;
 	private MulticastSocket multicastListenerSocket;
 	private MulticastSocket multicastServerSocket;
 	private InetAddress multicastGroup;
-	
+
 	public int getMulticastServerPort() {
 		return multicastServerSocket.getPort();
 	}
-	
+
 	public MulticastSocket getMulticastListenerSocket() {
 		return multicastListenerSocket;
 	}
 
-	public void setMulticastListenerSocket(MulticastSocket multicastListenerSocket) {
+	public void setMulticastListenerSocket(
+			MulticastSocket multicastListenerSocket) {
 		this.multicastListenerSocket = multicastListenerSocket;
 	}
 
@@ -72,12 +76,13 @@ public class MulticastServer {
 	public synchronized void ensureRunning() throws IOException {
 		if (!isRunning) {
 			try {
-			this.multicastServerSocket = new MulticastSocket();
-			this.multicastListenerSocket = new MulticastSocket(MULTICAST_LISTENER_PORT);
-			this.multicastListenerSocket.joinGroup(multicastGroup);
-			start();
-			isRunning = true;
-			} catch(IOException e)  {
+				this.multicastServerSocket = new MulticastSocket();
+				this.multicastListenerSocket = new MulticastSocket(
+						MULTICAST_LISTENER_PORT);
+				this.multicastListenerSocket.joinGroup(multicastGroup);
+				start();
+				isRunning = true;
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -90,13 +95,19 @@ public class MulticastServer {
 		isRunning = false;
 	}
 
-	void multicastUpdate(Message multicastMessage) throws Exception, IOException {
+	void multicastUpdate(Message multicastMessage) throws Exception,
+			IOException {
 
-		ProcessorThread.getServer().getLogger().info("Sending multicast update of Node"+multicastMessage.getAlteredNode().getHostAddress());
+		ProcessorThread.getServer().logNetworkData(multicastMessage);
+		ProcessorThread
+				.getServer()
+				.getLogger()
+				.info("Sending multicast update of Node"
+						+ multicastMessage.getAlteredNode().getHostAddress());
 
-	    byte[] bytes = multicastMessage.toBytes();
-		DatagramPacket packet =
-				new DatagramPacket(bytes, bytes.length, getMulticastGroup(), multicastListenerSocket.getLocalPort());
-		ProcessorThread.getServer().getSocket().send(packet);
+		byte[] bytes = multicastMessage.toBytes();
+		DatagramPacket packet = new DatagramPacket(bytes, bytes.length,
+				getMulticastGroup(), multicastListenerSocket.getLocalPort());
+		getMulticastServerSocket().send(packet);
 	}
 }

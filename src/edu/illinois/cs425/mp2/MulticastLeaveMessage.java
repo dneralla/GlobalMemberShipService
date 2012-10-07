@@ -7,21 +7,19 @@ public class MulticastLeaveMessage extends MulticastMessage {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public MulticastLeaveMessage(String messageType) {
-		super(messageType);
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public void processMessage() {
-		System.out.println("Processing multicast leave message");
 		new ServiceThread(this) {
 			@Override
 			public void run() {
 				try {
 
-					ProcessorThread.getServer().getLogger().info("Multicast leave message Processing  of node"+getMessage().getAlteredNode().getHostAddress());
-
+					ProcessorThread
+							.getServer()
+							.getLogger()
+							.info("Multicast leave message Processing  of node"
+									+ getMessage().getAlteredNode()
+											.getHostAddress());
 
 					if (mergeIntoMemberList()) {
 						Message message = getNewRelayMessage(ProcessorThread
@@ -38,7 +36,12 @@ public class MulticastLeaveMessage extends MulticastMessage {
 					}
 
 				} catch (Exception e) {
-					ProcessorThread.getServer().getLogger().info("Multicast leave message  Processing failed of node"+getMessage().getAlteredNode().getHostAddress());
+					ProcessorThread
+							.getServer()
+							.getLogger()
+							.info("Multicast leave message  Processing failed of node"
+									+ getMessage().getAlteredNode()
+											.getHostAddress());
 					e.printStackTrace();
 				}
 			}
