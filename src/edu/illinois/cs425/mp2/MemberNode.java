@@ -76,4 +76,8 @@ public class MemberNode implements java.io.Serializable {
 		hashCode = 31 * hashCode + (hostPort);
 		return hashCode;
 	}
+
+	public String getDescription() {
+		return  hostAddress.toString()+":"+ getHostPort();
+	}
 }

@@ -46,6 +46,9 @@ public class ProcessorThread extends Thread {
 				packet = new DatagramPacket(receiveMessage,
 						receiveMessage.length);
 				server.getSocket().receive(packet);
+				if(server.isInRing()) {
+					continue;
+				}
 				senderAddress = packet.getAddress();
 				port = packet.getPort();
 				ByteArrayInputStream bis = new ByteArrayInputStream(

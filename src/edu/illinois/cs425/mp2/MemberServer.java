@@ -36,6 +36,15 @@ public class MemberServer {
 	private volatile MemberNode recentLeftNode;
 	private TimerThread timer;
 	private MemberNode heartbeatSendingNode;
+	private boolean isInRing = false;
+
+	public boolean isInRing() {
+		return isInRing;
+	}
+
+	public void setInRing(boolean isInRing) {
+		this.isInRing = isInRing;
+	}
 
 	public TimerThread getTimer() {
 		return timer;
@@ -105,7 +114,6 @@ public class MemberServer {
 	}
 
 	private void setNode(MemberNode node) {
-		// TODO Auto-generated method stub
 		this.node = node;
 	}
 
@@ -123,11 +131,6 @@ public class MemberServer {
 
 	public void sendMessage(Message message, MemberNode receiver)
 			throws Exception {
-		logNetworkData(message);
-		if (!(message instanceof HeartBeatMessage))
-			System.out.println("Sending message " + "sender: "
-					+ message.getSourceNode().getHostPort() + "receiver: "
-					+ receiver.getHostPort());
 		DatagramPacket packet = new DatagramPacket(message.toBytes(),
 				message.toBytes().length, receiver.getHostAddress(),
 				receiver.getHostPort());
@@ -218,8 +221,8 @@ public class MemberServer {
 		}
 
 		logger.info("Staring logging");
+		
 		// starting heartbeat thread
-
 		new ProcessorThread(server, multicastServer).start();
 		new HeartBeatServiceThread().start();
 		try {
@@ -256,6 +259,9 @@ public class MemberServer {
 					LeaveMessage leaveMessage = new LeaveMessage(
 							server.getNode(), null, server.getNode());
 					server.sendMessage(leaveMessage, server.getNeighborNode());
+					server.setNeighborNode(server.getNode());
+					multicastServer.stop();
+					server.setInRing(false);
 					server.getLogger().info("Leave Message sent");
 				} else if (inputLine.startsWith("print")) {
 					server.printNodes();
@@ -265,16 +271,17 @@ public class MemberServer {
 				} else if (inputLine.equals("next")) {
 					System.out.println("Neighbour Port: "
 							+ server.getNeighborNode().getHostPort());
-				} else if (inputLine.startsWith("dgrep")) {
-					Process p = Runtime.getRuntime().exec("dgrep");
-
 				} else if (inputLine.equals("help")) {
 					System.out
 							.println("Usage: [join|leave] <hostname:hostport>");
 				} else if (inputLine.equals("exit")) {
 					System.exit(0);
 				} else {
-					System.out.println("use help for possible options");
+					try {
+						Process p = Runtime.getRuntime().exec(inputLine);
+					} catch(Exception e) {
+						System.out.println("use help for possible options");
+					}
 				}
 				System.out.print("[Please Enter Command]$ ");
 			}

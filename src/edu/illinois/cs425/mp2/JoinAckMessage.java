@@ -34,7 +34,6 @@ public class JoinAckMessage extends Message {
 			@Override
 			public void run() {
 				try {
-					System.out.println("Join Acknowledging");
 					ProcessorThread.getServer().getLogger().info("Join Acknowledging and updating neighbor as "+((JoinAckMessage)getMessage()).getNeighbourNode().getHostAddress());
 					ProcessorThread.getServer().setNeighborNode(((JoinAckMessage)getMessage()).getNeighbourNode());
 

@@ -13,8 +13,7 @@ public class MulticastJoinMessage extends MulticastMessage {
 	}
 
 	@Override
-	public void processMessage() {
-		System.out.println("processing multicast join");
+	public void processMessage() {	
 		new ServiceThread(this) {
 
 			@Override
@@ -49,8 +48,6 @@ public class MulticastJoinMessage extends MulticastMessage {
 	@Override
 	public RelayMessage getNewRelayMessage(MemberNode sourceNode,
 			MemberNode centralNode, MemberNode alteredNode) {
-		// TODO Auto-generated method stub
-
 		RelayJoinMessage message = new RelayJoinMessage(sourceNode,
 				centralNode, alteredNode);
 		return message;

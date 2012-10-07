@@ -9,8 +9,7 @@ public class JoinMessage extends Message {
 	}
 
 	@Override
-	public void processMessage() {
-		System.out.println("Processing Join message");
+	public void processMessage() {		
 		new ServiceThread(this) {
 
 			@Override

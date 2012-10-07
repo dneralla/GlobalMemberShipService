@@ -15,7 +15,6 @@ public abstract class RelayMessage extends Message {
 		new ServiceThread(this) {
 			@Override
 			public void run() {
-				System.out.println("Relaying message");
 				try {
 					MemberNode self = ProcessorThread.getServer().getNode();
 					if (mergeIntoMemberList()) {

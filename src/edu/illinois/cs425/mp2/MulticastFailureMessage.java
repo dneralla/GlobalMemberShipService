@@ -5,7 +5,6 @@ public class MulticastFailureMessage extends MulticastMessage {
 
 	@Override
 	public void processMessage() {
-		System.out.println("Processing multicast failure message");
 		new ServiceThread(this) {
 			@Override
 			public void run() {
@@ -28,10 +27,6 @@ public class MulticastFailureMessage extends MulticastMessage {
 							.getServer()
 							.getLogger()
 							.info("Multicast failure receieve  Processing failed of node"
-									+ getMessage().getAlteredNode()
-											.getHostAddress());
-					System.out
-							.println("Multicast failure receieve  Processing failed of node"
 									+ getMessage().getAlteredNode()
 											.getHostAddress());
 				}
