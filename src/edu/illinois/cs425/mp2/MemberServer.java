@@ -234,6 +234,10 @@ public class MemberServer{
 				} else if (inputLine.startsWith("set master")) {
 					master.setHostAddress(InetAddress.getByName(inputLine.substring(12)));
 				}
+				else if(inputLine.startsWith("dgrep"))
+				{
+
+				}
 				else if (inputLine.equals("help")) {
 					System.out
 							.println("Usage: [join|leave] <hostname:hostport>");
