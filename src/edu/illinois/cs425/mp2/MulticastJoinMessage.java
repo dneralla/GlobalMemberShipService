@@ -15,7 +15,7 @@ public class MulticastJoinMessage extends MulticastMessage {
 	@Override
 	public void processMessage()
 	{
-		System.out.println("Processing multicast join message" + getSourceNode().getHostPort());
+		System.out.println("Processing multicast join message");
 		new ServiceThread(this) {
 			@Override
 			public void run() {

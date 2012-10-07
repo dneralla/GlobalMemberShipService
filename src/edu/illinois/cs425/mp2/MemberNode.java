@@ -55,4 +55,22 @@ public class MemberNode  implements java.io.Serializable{
 			return true;
 		return false;
 	}
+	
+	@Override
+	public boolean equals(Object node) {
+		if( node == null || !(node instanceof MemberNode))
+			return false;
+		if (hostAddress.equals(((MemberNode) node).getHostAddress())
+				&& hostPort == ((MemberNode) node).getHostPort())
+			return true;
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		  int hashCode = 0;
+		  hashCode = 31*hashCode + (hostAddress ==null ? 0 : hostAddress.hashCode());
+		  hashCode = 31*hashCode + (hostPort);
+		  return hashCode;
+	}
 }

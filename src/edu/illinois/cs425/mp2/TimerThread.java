@@ -1,5 +1,7 @@
 package edu.illinois.cs425.mp2;
 
+import java.util.Date;
+
 public class TimerThread extends ServiceThread{
 	
 	public TimerThread(Message message)
@@ -32,8 +34,12 @@ public class TimerThread extends ServiceThread{
 
 			MemberNode self = ProcessorThread.getServer().getNode();
 			// TODO: in case of failure detection, altered is faulty node //Get sending nodel
+			node.setTimeStamp(new Date());
+		
 			MulticastFailureMessage message = new MulticastFailureMessage(self, self,node);
-	        ProcessorThread.getMulticastServer().multicastUpdate(message);
+			message.mergeIntoMemberList();
+	        
+			ProcessorThread.getMulticastServer().multicastUpdate(message);
 			}
 			catch(Exception e)
 			{

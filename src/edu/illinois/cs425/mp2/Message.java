@@ -4,8 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
 
 /*
  * Generic class for handling all messages.
@@ -149,46 +152,48 @@ public abstract class Message implements Serializable {
 
 	public boolean checkIsIntructionJoinVariant() {
 		return this instanceof JoinMessage ||
-			   this instanceof MulticastJoinMessage;
+			   this instanceof MulticastJoinMessage ||
+			   this instanceof RelayJoinMessage;
 	}
-	public boolean mergeIntoMemberList() {
-		List<MemberNode> globalList = ProcessorThread.getServer()
-				.getGlobalList();
-		boolean isLatestUpdate = false, isNewEntry = true;
-		Date timeStamp = getSourceNode().getTimeStamp();
-		System.out.println("Global List::" +globalList);
-		for (MemberNode member : globalList) {
-			if (member.compareTo(getSourceNode())) {
-				isNewEntry = false;
-				if (timeStamp.after(member.getTimeStamp())) {
-					if (checkIsIntructionJoinVariant()) {
-						member.setTimeStamp(getSourceNode().getTimeStamp());
-					} else if (checkIsIntructionJoinVariant()) {
-						globalList.remove(member);
-					}
-					isLatestUpdate = true;
-				}
-			}
-		}
-		// missing out the case where join message appears after leave message
-		if (isNewEntry) {
-            if(!getSourceNode().compareTo(ProcessorThread.getServer().getRecentLeftNode())) {
-				globalList.add(getSourceNode());
-				isLatestUpdate = true;
-            }
-		}
-		return isLatestUpdate;
-	}
+	
+	public synchronized boolean mergeIntoMemberList() {
 
-	public void mergeIntoMemberList(MemberNode node) {
-		List<MemberNode> globalList = ProcessorThread.getServer()
-				.getGlobalList();
+		List<MemberNode> globalList = (ArrayList<MemberNode>) ProcessorThread
+				.getServer().getGlobalList();
+		boolean isLatestUpdate = false;
 		Date timeStamp = getSourceNode().getTimeStamp();
-		for (MemberNode member : globalList) {
-			if (member.compareTo(node)) {
-				globalList.add(getSourceNode());
-            }
+		int index = globalList.indexOf(getAlteredNode());
+		MemberNode matchingNode = index == -1 ? null : globalList.get(index);
+		if (checkIsIntructionJoinVariant()) {
+			if (matchingNode == null
+					&&
+					/* && checkHasJoinArrivedLate() */
+					(ProcessorThread.getServer().getRecentLeftNode() == null ||
+							!ProcessorThread.getServer().getRecentLeftNode()
+							.equals(getAlteredNode()) || getAlteredNode()
+							.getTimeStamp()
+							.after(ProcessorThread.getServer()
+									.getRecentLeftNode().getTimeStamp()))) {
+				globalList.add(getAlteredNode());
+				return true;
+			} else if (matchingNode.getTimeStamp().before(
+					getAlteredNode().getTimeStamp())) {
+				matchingNode.setTimeStamp(getAlteredNode().getTimeStamp());
+				return true;
+			}
+		} else {
+			if (matchingNode != null
+					&& matchingNode.getTimeStamp().before(
+							getAlteredNode().getTimeStamp())) {
+				globalList.remove(getAlteredNode());
+				ProcessorThread.getServer().setRecentLeftNode(getAlteredNode());
+				return true;
+			} else {
+				ProcessorThread.getServer().setRecentLeftNode(getAlteredNode());
+			}
+
 		}
+		return false;
 	}
 	 public abstract void processMessage();
 	// public abstract void mergeIntoMessageList();

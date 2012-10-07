@@ -1,5 +1,6 @@
 package edu.illinois.cs425.mp2;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +22,9 @@ public class JoinMessage extends Message {
 	
 	
 
+  
+
+	
 	@Override
 	public void processMessage() {
 		System.out.println("Processign message");

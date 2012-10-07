@@ -1,5 +1,7 @@
 package edu.illinois.cs425.mp2;
 
+import java.util.Date;
+
 public class LeaveMessage extends Message {
 
 	public LeaveMessage(String messageType) {
@@ -18,12 +20,11 @@ public class LeaveMessage extends Message {
 			public void run() {
 				try {
 					System.out.println("Processing Leave message");
-
-					ProcessorThread.getMulticastServer().ensureRunning();
-
+					mergeIntoMemberList();
 					MemberNode self = ProcessorThread.getServer().getNode();
 					// TODO: in case of failure detection, altered is faulty node
 					MulticastLeaveMessage message = new MulticastLeaveMessage(self, self, getMessage().getAlteredNode());
+					ProcessorThread.getServer().setRecentLeftNode(getAlteredNode());
 			        ProcessorThread.getMulticastServer().multicastUpdate(message);
 
 				} catch (Exception e) {

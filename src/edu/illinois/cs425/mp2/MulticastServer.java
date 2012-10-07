@@ -2,22 +2,23 @@ package edu.illinois.cs425.mp2;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
 public class MulticastServer {
 
+	private static final int MULTICAST_LISTENER_PORT = 4446;
     private static final String MULTICAST_GROUP = "230.0.0.1";
 	private boolean isRunning;
-	public int multicastServerPort;
 	private MemberServer server;
 	private MulticastSocket multicastListenerSocket;
 	private MulticastSocket multicastServerSocket;
 	private InetAddress multicastGroup;
 	
 	public int getMulticastServerPort() {
-		return multicastServerPort;
+		return multicastServerSocket.getPort();
 	}
 	
 	public MulticastSocket getMulticastListenerSocket() {
@@ -44,20 +45,16 @@ public class MulticastServer {
 		this.server = server;
 	}
 
-	public MulticastServer(MemberServer server, int port) {
+	public MulticastServer(MemberServer server) throws IOException {
 		this.server = server;
 		try {
 			this.multicastGroup = InetAddress.getByName(MULTICAST_GROUP);
-			this.multicastServerPort = port;
+			this.multicastServerSocket = new MulticastSocket();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-	}
-
-	public void setMulticastPort(int multicastServerPort) {
-		this.multicastServerPort = multicastServerPort;
 	}
 
 	public InetAddress getMulticastGroup() {
@@ -75,8 +72,8 @@ public class MulticastServer {
 	public synchronized void ensureRunning() throws IOException {
 		if (!isRunning) {
 			try {
-			this.multicastServerSocket = new MulticastSocket(multicastServerPort);
-			this.multicastListenerSocket = new MulticastSocket();
+			this.multicastServerSocket = new MulticastSocket();
+			this.multicastListenerSocket = new MulticastSocket(MULTICAST_LISTENER_PORT);
 			this.multicastListenerSocket.joinGroup(multicastGroup);
 			start();
 			isRunning = true;
@@ -98,7 +95,7 @@ public class MulticastServer {
 		ProcessorThread.getServer().getLogger().info("Sending multicast update "+ multicastMessage.getDescription());
 	    byte[] bytes = multicastMessage.toBytes();
 		DatagramPacket packet =
-				new DatagramPacket(bytes, bytes.length, getMulticastGroup(), getMulticastListenerSocket().getPort());
-		getMulticastServerSocket().send(packet);
+				new DatagramPacket(bytes, bytes.length, getMulticastGroup(), multicastListenerSocket.getLocalPort());
+		ProcessorThread.getServer().getSocket().send(packet);
 	}
 }

@@ -14,6 +14,7 @@ public class MulticastLeaveMessage extends MulticastMessage {
 
 	@Override
 	public void processMessage() {
+		System.out.println("Processing multicast leave message");
 		new ServiceThread(this) {
 			@Override
 			public void run() {

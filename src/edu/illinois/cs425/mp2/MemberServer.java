@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -128,6 +129,14 @@ public class MemberServer{
 		getSocket().send(packet);
     }
 
+    public synchronized void printNodes() {
+    	System.out.print("[");
+		for (MemberNode node : getGlobalList())
+			if(node!=null)
+				System.out.print(node.getHostPort() + ", ");
+		System.out.println("]");
+    }
+    
 	public static void main(String[] args) throws Exception {
 		MemberServer server = null;
 		MulticastServer multicastServer = null;
@@ -153,7 +162,11 @@ public class MemberServer{
 			server = MemberServer.start(InetAddress.getLocalHost().getHostName(),
 					Integer.parseInt(args[0]));
 			
-			multicastServer = new MulticastServer(server,Integer.parseInt(args[1]));
+			multicastServer = new MulticastServer(server);
+			if(master.getHostAddress().equals(InetAddress.getLocalHost())) {
+				System.out.println("I'm master node");
+				multicastServer.ensureRunning();
+			}
 			server.setLogger(logger);
 
 		} catch (SocketException e) {
@@ -181,6 +194,7 @@ public class MemberServer{
 			System.out.print("[Please Enter Command]$ ");
 			while ((inputLine = in.readLine()) != null) {
 				if (inputLine.equals("join")) {
+					server.getNode().setTimeStamp(new Date());
 					Message message = new JoinMessage(server.getNode(), null,
 							null);
 					System.out.println("Join message sending");
@@ -192,15 +206,13 @@ public class MemberServer{
 					server.getLogger().info("Join message Sent");
 
 				} else if (inputLine.equals("leave")) {
+					server.getNode().setTimeStamp(new Date());
                     LeaveMessage leaveMessage = new LeaveMessage(server.getNode(), null, server.getNode());
 					server.sendMessage(leaveMessage, server.getNeighborNode());
 					server.getLogger().info("Leave Message sent");
 
 				} else if (inputLine.startsWith("print")) {
-					System.out.print("[");
-					for (MemberNode node : server.globalList)
-						System.out.print(node.getHostPort() + ", ");
-					System.out.println("]");
+					server.printNodes();
 				}
 			 else if (inputLine.equals("next")) {
 				System.out
